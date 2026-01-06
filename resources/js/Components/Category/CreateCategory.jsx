@@ -4,6 +4,7 @@ import Input from "../Utilities/Input";
 import InputError from "../Utilities/InputError";
 import Dropdown from "../Utilities/Dropdown";
 import Button from "../Utilities/Button";
+import transactionTypes from "../../../data/transaction_types.json";
 
 export default function CreateCategory({ onCreated }) {
     const [name, setName] = useState("");
@@ -64,48 +65,16 @@ export default function CreateCategory({ onCreated }) {
 
             {/* Type (Dropdown) */}
             <div>
-                <InputLabel value="Type" />
+                <Dropdown
+                    label="Type"
+                    value={type}
+                    onChange={setType}
+                    options={transactionTypes.map(t => ({
+                        label: t.name,
+                        value: t.name.toLowerCase(),
+                    }))}
+                />
 
-                <Dropdown>
-                    <Dropdown.Trigger>
-                        <div className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-left shadow-sm cursor-pointer flex justify-between items-center">
-                            <span className="text-gray-700 capitalize">
-                                {type}
-                            </span>
-                            <svg
-                                className="h-4 w-4 text-gray-500"
-                                fill="none"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                viewBox="0 0 24 24"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M19 9l-7 7-7-7"
-                                />
-                            </svg>
-                        </div>
-                    </Dropdown.Trigger>
-
-                    <Dropdown.Content align="left" width="48">
-                        <button
-                            type="button"
-                            onClick={() => setType("expense")}
-                            className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                            Expense
-                        </button>
-
-                        <button
-                            type="button"
-                            onClick={() => setType("income")}
-                            className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                        >
-                            Income
-                        </button>
-                    </Dropdown.Content>
-                </Dropdown>
 
                 {errors.type && <InputError message={errors.type} />}
             </div>

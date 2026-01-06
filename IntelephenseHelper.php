@@ -17,6 +17,8 @@ interface Guard
      * @return int|string|null
      */
     public function id();
+
+    public function categories();
 }
 
 interface StatefulGuard
