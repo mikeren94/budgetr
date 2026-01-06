@@ -15,7 +15,8 @@ class Transaction extends Model
         'date',
         'category_id',
         'description',
-        'user_id'
+        'user_id',
+        'recurring_rule_id'
     ];
 
     protected $casts = [
@@ -36,5 +37,10 @@ class Transaction extends Model
         $end = Carbon::parse($month . '-01')->endOfMonth();
 
         return $query->whereBetween('date', [$start, $end]);
+    }
+
+    public function recurringRule()
+    {
+        return $this->belongsTo(RecurringRule::class);
     }
 }

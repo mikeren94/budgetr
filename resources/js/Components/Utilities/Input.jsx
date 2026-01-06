@@ -1,13 +1,15 @@
-const Input = ({ className = "", ...props }) => {
-    return (
-        <input
-            {...props}
-            className={
-                "w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 " +
-                className
-            }
-        />
-    );
-}
+const Input = ({ type = "text", className = "", ...props }) => {
+    let baseClasses = "";
+
+    if (type === "checkbox") {
+        baseClasses = "h-4 w-4";
+    } else if (type === "color") {
+        baseClasses = "h-8 w-12 p-0 border rounded cursor-pointer";
+    } else {
+        baseClasses = "w-full border rounded px-3 py-2";
+    }
+
+    return <input type={type} className={`${baseClasses} ${className}`} {...props} />;
+};
 
 export default Input;

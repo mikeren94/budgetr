@@ -26,8 +26,20 @@ class StoreTransactionRequest extends FormRequest
             'date' => 'required|date',
             'category_id' => 'required|exists:categories,id',
             'description' => 'nullable|string',
-            'name' => 'nullable|string|max:255'
+            // Recurring rule fields
+            'is_recurring' => ['boolean'],
+            'frequency' => ['nullable', 'in:monthly,yearly,custom'],
+            'interval' => ['nullable', 'integer', 'min:1'],
+            'months' => ['nullable', 'array'],
+            'months.*' => ['integer', 'between:1,12'],
         ];
+    }
 
+    public function prepareForValidation()
+    {
+        // Ensure boolean is parsed correctly
+        $this->merge([
+            'is_recurring' => filter_var($this->is_recurring, FILTER_VALIDATE_BOOLEAN),
+        ]);
     }
 }

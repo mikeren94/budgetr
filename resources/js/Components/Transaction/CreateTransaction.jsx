@@ -7,6 +7,7 @@ import Button from "../Utilities/Button";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowTrendUp, faArrowTrendDown } from "@fortawesome/free-solid-svg-icons";
 import Alert from "../Utilities/Alert";
+import RecurringRuleFields from "./ReccuringRuleFields";
 
 const CreateTransaction = () => {
     const [amount, setAmount] = useState(0);
@@ -21,6 +22,13 @@ const CreateTransaction = () => {
     const [loadingCategories, setLoadingCategories] = useState(true);
     const [successMessage, setSuccessMessage] = useState("");
     const [showSuccess, setShowSuccess] = useState(false);
+
+    const [recurringRule, setRecurringRule] = useState({
+        isRecurring: false,
+        frequency: "monthly",
+        interval: 1,
+        months: [],
+    });
 
     const getCategories = async () => {
         try {
@@ -51,6 +59,14 @@ const CreateTransaction = () => {
                     category_id: selectedCategory,
                     date,
                     description,
+                    is_recurring: recurringRule.isRecurring,
+                    frequency: recurringRule.isRecurring ? recurringRule.frequency : null,
+                    interval: recurringRule.isRecurring ? recurringRule.interval : null,
+                    months:
+                        recurringRule.isRecurring &&
+                        recurringRule.frequency === "custom"
+                            ? recurringRule.months
+                            : null,
                 },
                 { withCredentials: true }
             );
@@ -171,6 +187,13 @@ const CreateTransaction = () => {
                         onChange={(e) => setDescription(e.target.value)}
                     />
                     {errors.description && <InputError message={errors.description} />}
+                </div>
+
+                <div>
+                    <RecurringRuleFields
+                        value={recurringRule}
+                        onChange={setRecurringRule}
+                    />
                 </div>
 
                 {/* Submit */}
