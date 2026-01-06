@@ -1,5 +1,6 @@
 import CreateCategory from '@/Components/Category/CreateCategory';
-import CreateTransaction from '@/Components/Transaction/CreateTransaction';
+import CreateTransaction from '@/Components/Transaction/SubmitTransaction';
+import TransactionList from '@/Components/Transaction/TransactionList';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
 
@@ -18,6 +19,7 @@ export default function Dashboard() {
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <CreateCategory />
                     <CreateTransaction />
+                    <TransactionList />
                 </div>
             </div>
             
