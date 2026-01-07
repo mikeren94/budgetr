@@ -1,4 +1,5 @@
 import CreateCategory from '@/Components/Category/CreateCategory';
+import MonthlySummary from '@/Components/Summary/MonthlySummary';
 import CreateTransaction from '@/Components/Transaction/CreateTransaction';
 import TransactionList from '@/Components/Transaction/TransactionList';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
@@ -23,9 +24,7 @@ export default function Dashboard() {
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <CreateCategory />
-                    <CreateTransaction onSuccess={triggerRefresh} />
-                    <TransactionList refreshFlag={refreshFlag} />
+                    <MonthlySummary />
                 </div>
             </div>
             
