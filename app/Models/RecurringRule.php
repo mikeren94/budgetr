@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class RecurringRule extends Model
 {
@@ -25,6 +26,11 @@ class RecurringRule extends Model
     protected $casts = [
         'months' => 'array'
     ];
+
+    public function user()
+    {
+        return $this->BelongsTo(User::class);
+    }
 
     public function transactions()
     {

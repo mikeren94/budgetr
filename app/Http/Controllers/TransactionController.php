@@ -93,4 +93,15 @@ class TransactionController extends Controller
 
         return new TransactionResource($transaction->fresh());
     }
+
+    public function destroy(Transaction $transaction)
+    {
+        // Ensure the user owns this transaction
+        $this->authorize('update', $transaction);
+        
+        // Delete the transaction
+        $transaction->delete();
+
+        return response()->noContent(); // 204
+    }
 }

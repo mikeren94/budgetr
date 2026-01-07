@@ -22,6 +22,22 @@ const TransactionList = ({ refreshFlag }) => {
         }
     };
 
+    const handleDelete = async (id) => {
+        const confirmed = window.confirm("Are you sure you want to delete this transaction?");
+
+        if (!confirmed) return;
+
+        try {
+            await axios.delete(`/api/transactions/${id}`, {
+                withCredentials: true,
+            });
+
+            // Refresh the list
+            fetchTransactions();
+        } catch (error) {
+            console.error("Failed to delete transaction", error);
+        }
+    };
     useEffect(() => {
         fetchTransactions();
     }, [refreshFlag]);
@@ -62,6 +78,14 @@ const TransactionList = ({ refreshFlag }) => {
                             >
                                 Edit
                             </Button>
+
+                            <Button
+                                variant="danger"
+                                onClick={() => handleDelete(t.id)}
+                            >
+                                Delete
+                            </Button>
+
                         </div>
                     </div>
                 ))}

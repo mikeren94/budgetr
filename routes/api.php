@@ -12,4 +12,5 @@ Route::middleware(['web','auth'])->group(function() {
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
     Route::put('/transactions/{transaction}', [TransactionController::class, 'update']);
     Route::post('/transactions', [TransactionController::class, 'store']);
+    Route::delete('/transactions/{transaction}', [TransactionController::class, 'destroy']);
 });
