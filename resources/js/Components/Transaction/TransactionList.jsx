@@ -1,16 +1,15 @@
 import Button from "../Utilities/Button";
 import { useState, useEffect } from "react";
-import SubmitTransaction from "./SubmitTransaction";
+import EditTransaction from "./EditTransaction";
 
-const TransactionList = ({refreshFlag}) => {
+const TransactionList = ({ refreshFlag }) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [editingTransaction, setEditingTransaction] = useState(null);
-    const [loadingEdit, setLoadingEdit] = useState(false);
-    
+    const [editingId, setEditingId] = useState(null);
+
     const fetchTransactions = async () => {
         try {
-            const month = new Date().toISOString().slice(0, 7); // "2026-01"
+            const month = new Date().toISOString().slice(0, 7);
             const response = await axios.get(`/api/transactions?month=${month}`, {
                 withCredentials: true,
             });
@@ -23,46 +22,10 @@ const TransactionList = ({refreshFlag}) => {
         }
     };
 
-    const startEditing = async (id) => {
-        setLoadingEdit(true);
-
-        try {
-            const response = await axios.get(`/api/transactions/${id}`, {
-                withCredentials: true,
-            });
-
-            setEditingTransaction(response.data.data);
-        } catch (error) {
-            console.error("Failed to load transaction", error);
-        } finally {
-            setLoadingEdit(false);
-        }
-    };
-
-    const submitEdit = async (payload, setErrors, setLoading) => {
-        console.log(payload);
-        try {
-            await axios.put(`/api/transactions/${editingTransaction.id}`, payload, {
-                withCredentials: true,
-            });
-
-            // Close the form
-            setEditingTransaction(null);
-
-            // Refresh the list
-            fetchTransactions();
-        } catch (error) {
-            if (error.response?.status === 422) {
-                setErrors(error.response.data.errors);
-            }
-        } finally {
-            setLoading(false);
-        }
-    }
-
     useEffect(() => {
         fetchTransactions();
     }, [refreshFlag]);
+
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold text-gray-800">
@@ -90,12 +53,12 @@ const TransactionList = ({refreshFlag}) => {
                                     t.amount >= 0 ? "text-green-600" : "text-red-600"
                                 }`}
                             >
-                            £{Number(t.amount).toFixed(2)}
+                                £{Number(t.amount).toFixed(2)}
                             </span>
 
                             <Button
                                 variant="secondary"
-                                onClick={() => startEditing(t.id)}
+                                onClick={() => setEditingId(t.id)}
                             >
                                 Edit
                             </Button>
@@ -104,18 +67,19 @@ const TransactionList = ({refreshFlag}) => {
                 ))}
             </div>
 
-            {editingTransaction && (
+            {editingId && (
                 <div className="mt-6">
-                    <SubmitTransaction
-                        initialValues={editingTransaction}
-                        submitLabel="Update Transaction"
-                        onSuccess={() => fetchTransactions()}
-                        onSubmit={(payload, setErrors, setLoading) => submitEdit(payload, setErrors, setLoading)}
+                    <EditTransaction
+                        id={editingId}
+                        onSuccess={() => {
+                            setEditingId(null);
+                            fetchTransactions();
+                        }}
                     />
                 </div>
             )}
         </div>
     );
-}
+};
 
 export default TransactionList;

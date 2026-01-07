@@ -2,18 +2,18 @@ import { useEffect, useState } from "react";
 import SubmitTransaction from "./SubmitTransaction";
 
 const CreateTransaction = ({ onSuccess }) => {
-
-    const [loading, setLoading] = useState(false);
     
-    const handleCreate = async (payload, setErrors, setLoading) => {
+    const handleCreate = async (payload, setErrors, setFormLoading) => {
         try {
             await axios.post("/api/transactions", payload, { withCredentials: true });
+            return true;
         } catch (error) {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
             }
+            return false;
         } finally {
-            setLoading(false);
+            setFormLoading(false);
         }
     };
     return (

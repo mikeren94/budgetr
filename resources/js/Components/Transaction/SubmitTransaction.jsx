@@ -56,47 +56,41 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
         setLoading(true);
         setErrors({});
 
-        try {
-            await onSubmit(
-                {
-                    amount,
-                    category_id: selectedCategory,
-                    date,
-                    description,
-                    recurringRule,
-                },
-                setErrors,
-                setLoading,
+        const payload = {
+            amount,
+            category_id: selectedCategory,
+            date,
+            description,
+        };
+
+        if (recurringRule.isRecurring) {
+            payload.recurringRule = recurringRule;
+        }
+
+        const success = await onSubmit(payload, setErrors, setLoading);
+
+        if (success) {
+            
+            // Only reset for create mode
+            if (!initialValues) {
+                setAmount(0);
+                setSelectedCategory(null);
+                setDate(today);
+                setDescription('');
+            }
+
+            setSuccessMessage(
+                initialValues ? "Transaction updated successfully!" : "Transaction added successfully!"
             );
 
-
-            // Reset form after success
-            setAmount(0);
-            setSelectedCategory(null);
-            setDate(today);
-            setDescription('');
-
-            setSuccessMessage("Transaction added successfully!");
-
-            if (typeof onSuccess == "function") {
+            if (typeof onSuccess === "function") {
                 onSuccess();
             }
-        } catch (error) {
-            if (error.response?.status === 422) {
-                setErrors(error.response.data.errors);
-            } else {
-                console.error("Unexpected error", error);
-            }
-        } finally {
-            setLoading(false);
         }
-    }
 
+        setLoading(false);
+    };
     useEffect(() => {
-        // Format YYYY-MM-DD for <input type="date" />
-        const today = new Date().toISOString().split("T")[0];
-        setDate(today);
-
         getCategories();
     }, []);
 

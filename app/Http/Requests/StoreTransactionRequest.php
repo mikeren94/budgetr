@@ -25,7 +25,7 @@ class StoreTransactionRequest extends FormRequest
             'amount' => 'required|numeric|min:0.01',
             'date' => 'required|date',
             'category_id' => 'required|exists:categories,id',
-            'description' => 'nullable|string',
+            'description' => 'required|string',
             // Recurring rule fields
             'is_recurring' => ['boolean'],
             'frequency' => ['nullable', 'in:monthly,yearly,custom'],

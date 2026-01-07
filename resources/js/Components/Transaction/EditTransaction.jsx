@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import SubmitTransaction from "./SubmitTransaction";
 
-const EditTransaction = ({ id }) => {
+const EditTransaction = ({ id, onSuccess }) => {
     const [transaction, setTransaction] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -15,19 +15,21 @@ const EditTransaction = ({ id }) => {
 
     useEffect(() => {
         fetchTransaction();
-    }, []);
+    }, [id]);
 
-    const handleUpdate = async (payload, setErrors, setLoading) => {
+    const handleUpdate = async (payload, setErrors, setFormLoading) => {
         try {
             await axios.put(`/api/transactions/${id}`, payload, {
                 withCredentials: true,
             });
+            return true;
         } catch (error) {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
             }
+            return false;
         } finally {
-            setLoading(false);
+            setFormLoading(false);
         }
     };
 
@@ -37,6 +39,7 @@ const EditTransaction = ({ id }) => {
         <SubmitTransaction
             initialValues={transaction}
             onSubmit={handleUpdate}
+            onSuccess={onSuccess}
             submitLabel="Update Transaction"
         />
     );
