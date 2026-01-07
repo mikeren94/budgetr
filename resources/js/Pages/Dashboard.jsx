@@ -1,10 +1,16 @@
 import CreateCategory from '@/Components/Category/CreateCategory';
-import CreateTransaction from '@/Components/Transaction/SubmitTransaction';
+import CreateTransaction from '@/Components/Transaction/CreateTransaction';
 import TransactionList from '@/Components/Transaction/TransactionList';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
+import { useState } from 'react';
 
 export default function Dashboard() {
+
+    const [refreshFlag, setRefreshFlag] = useState(0);
+
+    const triggerRefresh = () => setRefreshFlag(f => f + 1);
+
     return (
         <AuthenticatedLayout
             header={
@@ -18,8 +24,8 @@ export default function Dashboard() {
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
                     <CreateCategory />
-                    <CreateTransaction />
-                    <TransactionList />
+                    <CreateTransaction onSuccess={triggerRefresh} />
+                    <TransactionList refreshFlag={refreshFlag} />
                 </div>
             </div>
             

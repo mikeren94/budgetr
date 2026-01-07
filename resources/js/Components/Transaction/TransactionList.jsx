@@ -1,6 +1,8 @@
 import Button from "../Utilities/Button";
 import { useState, useEffect } from "react";
-const TransactionList = () => {
+import SubmitTransaction from "./SubmitTransaction";
+
+const TransactionList = ({refreshFlag}) => {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editingTransaction, setEditingTransaction] = useState(null);
@@ -36,9 +38,31 @@ const TransactionList = () => {
             setLoadingEdit(false);
         }
     };
+
+    const submitEdit = async (payload, setErrors, setLoading) => {
+        console.log(payload);
+        try {
+            await axios.put(`/api/transactions/${editingTransaction.id}`, payload, {
+                withCredentials: true,
+            });
+
+            // Close the form
+            setEditingTransaction(null);
+
+            // Refresh the list
+            fetchTransactions();
+        } catch (error) {
+            if (error.response?.status === 422) {
+                setErrors(error.response.data.errors);
+            }
+        } finally {
+            setLoading(false);
+        }
+    }
+
     useEffect(() => {
         fetchTransactions();
-    }, []);
+    }, [refreshFlag]);
     return (
         <div className="space-y-4">
             <h2 className="text-xl font-semibold text-gray-800">
@@ -85,25 +109,8 @@ const TransactionList = () => {
                     <SubmitTransaction
                         initialValues={editingTransaction}
                         submitLabel="Update Transaction"
-                        onSubmit={async (payload, setErrors, setLoading) => {
-                            try {
-                                await axios.put(`/api/transactions/${editingTransaction.id}`, payload, {
-                                    withCredentials: true,
-                                });
-
-                                // Close the form
-                                setEditingTransaction(null);
-
-                                // Refresh the list
-                                fetchTransactions();
-                            } catch (error) {
-                                if (error.response?.status === 422) {
-                                    setErrors(error.response.data.errors);
-                                }
-                            } finally {
-                                setLoading(false);
-                            }
-                        }}
+                        onSuccess={() => fetchTransactions()}
+                        onSubmit={(payload, setErrors, setLoading) => submitEdit(payload, setErrors, setLoading)}
                     />
                 </div>
             )}

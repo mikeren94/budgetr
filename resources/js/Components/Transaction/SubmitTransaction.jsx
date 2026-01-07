@@ -9,7 +9,7 @@ import { faArrowTrendUp, faArrowTrendDown } from "@fortawesome/free-solid-svg-ic
 import Alert from "../Utilities/Alert";
 import RecurringRuleFields from "./ReccuringRuleFields";
 
-const SubmitTransaction = ({initialValues = null, onSubmit, submitLabel = "Add Transaction"}) => {
+const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLabel = "Add Transaction"}) => {
     const today = new Date().toISOString().split("T")[0];
 
     const [categories, setCategories] = useState([]);
@@ -67,18 +67,20 @@ const SubmitTransaction = ({initialValues = null, onSubmit, submitLabel = "Add T
                 },
                 setErrors,
                 setLoading,
-                resetForm
             );
 
 
             // Reset form after success
             setAmount(0);
             setSelectedCategory(null);
-            setDate('');
+            setDate(today);
             setDescription('');
 
             setSuccessMessage("Transaction added successfully!");
 
+            if (typeof onSuccess == "function") {
+                onSuccess();
+            }
         } catch (error) {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
@@ -97,6 +99,23 @@ const SubmitTransaction = ({initialValues = null, onSubmit, submitLabel = "Add T
 
         getCategories();
     }, []);
+
+    useEffect(() => {
+        if (initialValues) {
+            setAmount(initialValues.amount ?? 0);
+            setSelectedCategory(initialValues.category_id ?? null);
+            setDate(initialValues.date ?? today);
+            setDescription(initialValues.description ?? "");
+            setRecurringRule(
+                initialValues.recurring_rule ?? {
+                    isRecurring: false,
+                    frequency: "monthly",
+                    interval: 1,
+                    months: [],
+                }
+            );
+        }
+    }, [initialValues]);
 
     return (
         <div>
@@ -203,7 +222,7 @@ const SubmitTransaction = ({initialValues = null, onSubmit, submitLabel = "Add T
                     variant="primary"
                     className="w-full"
                 >
-                    {loading ? "Adding..." : "Add Transaction"}
+                    {loading ? "Saving..." : submitLabel}
                 </Button>
             </form>
         </div>

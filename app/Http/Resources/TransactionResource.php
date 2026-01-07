@@ -21,6 +21,7 @@ class TransactionResource extends JsonResource
             'date'        => $this->date->toDateString(),
             'description' => $this->description,
             'category'    => new CategoryResource($this->whenLoaded('category')),
+            'category_id' => $this->category_id
         ];
 
     }

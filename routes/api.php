@@ -9,5 +9,7 @@ Route::middleware(['web','auth'])->group(function() {
     Route::post('/categories', [CategoryController::class, 'store']);
 
     Route::get('/transactions', [TransactionController::class, 'index']);
+    Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
+    Route::put('/transactions/{transaction}', [TransactionController::class, 'update']);
     Route::post('/transactions', [TransactionController::class, 'store']);
 });

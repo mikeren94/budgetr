@@ -4,14 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ListTransactionRequest;
 use App\Http\Requests\StoreTransactionRequest;
+use App\Http\Requests\UpdateTransactionRequest;
 use Illuminate\Http\Request;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use App\Http\Resources\TransactionResource;
 use App\Models\RecurringRule;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class TransactionController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(ListTransactionRequest $request)
     {
         $query = Transaction::where('user_id', $request->user()->id);
@@ -23,6 +27,13 @@ class TransactionController extends Controller
         return TransactionResource::collection(
             $query->orderBy('date', 'desc')->get()
         );
+    }
+
+    public function show(Transaction $transaction)
+    {
+        $this->authorize('view', $transaction);
+
+        return new TransactionResource($transaction);
     }
 
     public function store(StoreTransactionRequest $request)
@@ -57,5 +68,29 @@ class TransactionController extends Controller
             'message' => 'Transaction created successfully.',
             'data' => $transaction,
         ], 201);
+    }
+
+    public function update(UpdateTransactionRequest $request, Transaction $transaction)
+    {
+        // Ensure the user owns this transaction
+        $this->authorize('update', $transaction);
+
+        // Update the transaction fields
+        $transaction->update([
+            'amount' => $request->amount,
+            'category_id' => $request->category_id,
+            'date' => $request->date,
+            'description' => $request->description,
+        ]);
+
+        // Handle recurring rule (optional for now)
+        if ($request->has('recurringRule')) {
+            $transaction->recurringRule()->updateOrCreate(
+                [],
+                $request->recurringRule
+            );
+        }
+
+        return new TransactionResource($transaction->fresh());
     }
 }
