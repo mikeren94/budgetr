@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->decimal('amount', 10, 2);
             $table->date('start_date');
-            $table->enum('frequency', ['monthly', 'yearly', 'custom'])->default('monthly');
+            $table->enum('frequency', ['weekly','monthly', 'yearly', 'custom'])->default('monthly');
             $table->unsignedInteger('interval')->default(1);
             $table->json('months')->nullable();
             $table->date('next_occurrence')->nullable();

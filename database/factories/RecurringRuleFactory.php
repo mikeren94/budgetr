@@ -77,4 +77,13 @@ class RecurringRuleFactory extends Factory
             'active' => false,
         ]);
     }
+
+    public function weekly(int $interval = 1)
+    {
+        return $this->state(fn () => [
+            'frequency' => 'weekly',
+            'interval' => $interval,
+            'months' => null,
+        ]);
+    }
 }

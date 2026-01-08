@@ -98,4 +98,14 @@ class RecurringRule extends Model
 
         return $transaction;
     }
+
+    public function getCarbonUnitAttribute()
+    {
+        return match ($this->frequency) {
+            'monthly' => 'month',
+            'weekly' => 'week',
+            'biweekly' => 'week', // interval = 2
+            default => $this->frequency,
+        };
+    }
 }

@@ -16,11 +16,13 @@ class Transaction extends Model
         'category_id',
         'description',
         'user_id',
-        'recurring_rule_id'
+        'recurring_rule_id',
+        'coverage_end_date'
     ];
 
     protected $casts = [
-        'date' => 'date'
+        'date' => 'date',
+        'coverage_end_date' => 'date',
     ];
     
     public function user() {
@@ -42,5 +44,10 @@ class Transaction extends Model
     public function recurringRule()
     {
         return $this->belongsTo(RecurringRule::class);
+    }
+
+    public function isIncome()
+    {
+        return $this->category && $this->category->type === 'income';
     }
 }

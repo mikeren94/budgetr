@@ -19,6 +19,16 @@ class TransactionFactory extends Factory
             'amount' => $this->faker->randomFloat(2, 1, 500), // 1.00–500.00
             'date' => $this->faker->date(),
             'description' => $this->faker->optional()->sentence(),
+            'recurring_rule_id' => null,
+            'coverage_end_date' => null
         ];
     }
+
+    public function income()
+    {
+        return $this->state(fn () => [
+            'category_id' => Category::factory()->state(['type' => 'income']),
+        ]);
+    }
+
 }
