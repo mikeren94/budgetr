@@ -1,18 +1,6 @@
-import { useEffect, useState } from "react";
 import NetBalanceMeter from "../Charts/NetBalanceMeter";
 
-const MonthlySummary = () => {
-    const [income, setIncome] = useState(0);
-    const [expenses, setExpenses] = useState(0);
-    const [month, setMonth] = useState('');
-    const netSpend = income - expenses;
-
-    useEffect(() => {
-        setIncome(2000);
-        setExpenses(200);
-        setMonth("January 2026");
-    }, []);
-
+const MonthlySummary = ({ income, expenses, net, month }) => {
     return (
         <div className="bg-white rounded-lg shadow p-4 max-w-md w-full">
             <h2 className="text-xl font-semibold tracking-tight text-gray-900 mb-4">
@@ -39,10 +27,10 @@ const MonthlySummary = () => {
                     <span className="text-gray-500 tracking-wide">Net spend:</span>
                     <span
                         className={`font-semibold text-lg ${
-                            netSpend >= 0 ? "text-green-600" : "text-red-600"
+                            net >= 0 ? "text-green-600" : "text-red-600"
                         }`}
                     >
-                        £{netSpend}
+                        £{net}
                     </span>
                 </div>
             </div>
@@ -50,7 +38,7 @@ const MonthlySummary = () => {
             <NetBalanceMeter 
                 income={income}
                 expenses={expenses}
-                netSpend={netSpend}
+                netSpend={net}
             />
         </div>
     );

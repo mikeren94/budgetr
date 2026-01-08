@@ -111,4 +111,34 @@ class TransactionController extends Controller
 
         return response()->noContent(); // 204
     }
+
+    public function monthlySummary(Request $request)
+    {
+        $month = Carbon::parse($request->month ?? now());
+        $start = $month->copy()->startOfMonth();
+        $end = $month->copy()->endOfMonth();
+
+        $transactions = Transaction::with('category')
+            ->where(function ($q) use ($start, $end) {
+                $q->whereHas('category', fn($c) => $c->where('type', 'income'))
+                ->whereDate('date', '<=', $end)
+                ->whereDate('coverage_end_date', '>=', $start);
+            })
+            ->orWhere(function ($q) use ($start, $end) {
+                $q->whereHas('category', fn($c) => $c->where('type', 'expense'))
+                ->whereBetween('date', [$start, $end]);
+            })
+            ->with('category')->get();
+
+        $income = $transactions->where('category.type', 'income')->sum('amount');
+        $expenses = $transactions->where('category.type', 'expense')->sum('amount');
+
+        return response()->json([
+            'month' => $month->format('F Y'),
+            'income' => $income,
+            'expenses' => $expenses,
+            'net' => $income - $expenses,
+            'transactions' => $transactions,
+        ]);
+    }
 }
