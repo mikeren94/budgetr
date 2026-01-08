@@ -19,19 +19,21 @@ class StoreTransactionRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
+    public function rules()
     {
         return [
-            'amount' => 'required|numeric|min:0.01',
-            'date' => 'required|date',
-            'category_id' => 'required|exists:categories,id',
-            'description' => 'required|string',
-            // Recurring rule fields
-            'is_recurring' => ['boolean'],
-            'frequency' => ['nullable', 'in:monthly,yearly,custom'],
-            'interval' => ['nullable', 'integer', 'min:1'],
-            'months' => ['nullable', 'array'],
-            'months.*' => ['integer', 'between:1,12'],
+            'amount' => ['required', 'numeric'],
+            'category_id' => ['required', 'exists:categories,id'],
+            'date' => ['required', 'date'],
+            'description' => ['nullable', 'string'],
+            'coverage_end_date' => ['nullable', 'date'],
+
+            // Recurring rule (optional)
+            'recurringRule' => ['nullable', 'array'],
+            'recurringRule.isRecurring' => ['required_with:recurringRule', 'boolean'],
+            'recurringRule.frequency' => ['required_with:recurringRule', 'string'],
+            'recurringRule.interval' => ['required_with:recurringRule', 'integer'],
+            'recurringRule.months' => ['nullable', 'array'],
         ];
     }
 

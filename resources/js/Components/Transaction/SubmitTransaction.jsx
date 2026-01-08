@@ -33,7 +33,10 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
             months: [],
         }
     );
-
+    const [coverageEndDate, setCoverageEndDate] = useState(
+        initialValues?.coverage_end_date ?? ""
+    );
+    const hasRecurringRule = recurringRule?.isRecurring;
 
     const getCategories = async () => {
         try {
@@ -61,6 +64,7 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
             category_id: selectedCategory,
             date,
             description,
+            coverage_end_date: coverageEndDate || null
         };
 
         if (recurringRule.isRecurring) {
@@ -108,6 +112,7 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                     months: [],
                 }
             );
+            setCoverageEndDate(initialValues.coverage_end_date ?? "");
         }
     }, [initialValues]);
 
@@ -208,6 +213,22 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                         onChange={setRecurringRule}
                     />
                 </div>
+
+                {
+                    hasRecurringRule && (
+                        <div>
+                            <InputLabel value="Coverage End Date" />
+                            <Input 
+                                type="date"
+                                value={coverageEndDate}
+                                onChange={(e) => setCoverageEndDate(e.target.value)}
+                            />
+                            {errors.coverage_end_date && (
+                                <InputError message={errors.coverage_end_date} />
+                            )}
+                        </div>
+                    )
+                }
 
                 {/* Submit */}
                 <Button

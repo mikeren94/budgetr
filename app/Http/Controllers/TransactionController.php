@@ -40,6 +40,26 @@ class TransactionController extends Controller
     {
         $validated = $request->validated();
 
+        $rule = null;
+
+        // Create recurring rule if provided
+        if (!empty($validated['recurringRule']) && $validated['recurringRule']['isRecurring']) {
+
+            $ruleData = $validated['recurringRule'];
+
+            $rule = RecurringRule::create([
+                'user_id' => auth()->id(),
+                'category_id' => $validated['category_id'],
+                'amount' => $validated['amount'],
+                'frequency' => $ruleData['frequency'],
+                'interval' => $ruleData['interval'],
+                'months' => $ruleData['months'] ?? [],
+                'start_date' => $validated['date'],
+                'next_occurrence' => $validated['date'],
+                'active' => true,
+            ]);
+        }
+
         // Create the transaction
         $transaction = Transaction::create([
             'user_id' => auth()->id(),
@@ -47,26 +67,13 @@ class TransactionController extends Controller
             'amount' => $validated['amount'],
             'date' => $validated['date'],
             'description' => $validated['description'] ?? null,
+            'recurring_rule_id' => $rule?->id,
+            'coverage_end_date' => $validated['coverage_end_date'] ?? null,
         ]);
-
-        // Create recurring rule if needed
-        if ($request->boolean('is_recurring')) {
-            RecurringRule::create([
-                'user_id' => auth()->id(),
-                'category_id' => $validated['category_id'],
-                'amount' => $validated['amount'],
-                'frequency' => $validated['frequency'],
-                'interval' => $validated['interval'],
-                'months' => $validated['months'],
-                'start_date' => $validated['date'],
-                'next_occurrence' => $validated['date'],
-                'active' => true,
-            ]);
-        }
 
         return response()->json([
             'message' => 'Transaction created successfully.',
-            'data' => $transaction,
+            'data' => $transaction->load('recurringRule'),
         ], 201);
     }
 
@@ -98,7 +105,7 @@ class TransactionController extends Controller
     {
         // Ensure the user owns this transaction
         $this->authorize('update', $transaction);
-        
+
         // Delete the transaction
         $transaction->delete();
 
