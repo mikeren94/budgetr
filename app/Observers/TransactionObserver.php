@@ -36,8 +36,16 @@ class TransactionObserver
 
         $rule = $transaction->recurringRule;
 
+        $unit = match ($rule->frequency) {
+            'daily' => 'day',
+            'weekly' => 'week',
+            'monthly' => 'month',
+            'yearly' => 'year',
+            default => 'month', // safe fallback
+        };
+
         $transaction->coverage_end_date = $transaction->date->copy()->add(
-            $rule->carbon_unit,   // or whatever your normalized unit is
+            $unit,
             $rule->interval
         );
     }

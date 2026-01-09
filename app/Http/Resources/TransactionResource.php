@@ -21,7 +21,10 @@ class TransactionResource extends JsonResource
             'date'        => $this->date->toDateString(),
             'description' => $this->description,
             'category'    => new CategoryResource($this->whenLoaded('category')),
-            'category_id' => $this->category_id
+            'category_id' => $this->category_id,
+            'paid'        => $this->paid,
+            'paid_at'     => $this->paid_at,
+            'coverage_end_date' => $this->coverage_end_date
         ];
 
     }

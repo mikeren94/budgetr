@@ -119,17 +119,20 @@ class TransactionController extends Controller
         $end = $month->copy()->endOfMonth();
 
         $transactions = Transaction::with('category')
-            ->where(function ($q) use ($start, $end) {
-                $q->whereHas('category', fn($c) => $c->where('type', 'income'))
-                ->whereDate('date', '<=', $end)
-                ->whereDate('coverage_end_date', '>=', $start);
+            ->where('user_id', $request->user()->id)
+            ->where(function ($outer) use ($start, $end) {
+                $outer->where(function ($q) use ($start, $end) {
+                    $q->whereHas('category', fn($c) => $c->where('type', 'income'))
+                    ->whereDate('date', '<=', $end)
+                    ->whereDate('coverage_end_date', '>=', $start);
+                })
+                ->orWhere(function ($q) use ($start, $end) {
+                    $q->whereHas('category', fn($c) => $c->where('type', 'expense'))
+                    ->whereBetween('date', [$start, $end]);
+                });
             })
-            ->orWhere(function ($q) use ($start, $end) {
-                $q->whereHas('category', fn($c) => $c->where('type', 'expense'))
-                ->whereBetween('date', [$start, $end]);
-            })
-            ->with('category')->get();
-
+            ->get();
+            
         $income = $transactions->where('category.type', 'income')->sum('amount');
         $expenses = $transactions->where('category.type', 'expense')->sum('amount');
 
@@ -139,6 +142,33 @@ class TransactionController extends Controller
             'expenses' => $expenses,
             'net' => $income - $expenses,
             'transactions' => $transactions,
+        ]);
+    }
+
+    public function unpaid(Request $request)
+    {
+        $user = $request->user();
+
+        $unpaidTransactions = Transaction::where('user_id', $user->id)
+            ->where('paid', false)
+            ->where('date', '<=', Carbon::now())
+            ->whereHas('category', function ($query) {
+                $query->where('type', 'expense');
+            })
+            ->orderBy('date', 'asc')
+            ->get();
+
+        return TransactionResource::collection($unpaidTransactions);
+    }
+
+    public function markAsPaid(Request $request, Transaction $transaction)
+    {
+        $this->authorize('update', $transaction);
+
+        $transaction->update(['paid' => true]);
+
+        return response()->json([
+            'message' => 'Transaction marked as paid',
         ]);
     }
 }

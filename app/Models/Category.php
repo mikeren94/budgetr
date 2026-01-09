@@ -14,7 +14,12 @@ class Category extends Model
         'type',
         'color',
         'description',
-        'user_id'
+        'user_id',
+        'is_bill',
+    ];
+
+    protected $casts = [
+        'is_bill' => 'boolean',
     ];
 
     public function user()

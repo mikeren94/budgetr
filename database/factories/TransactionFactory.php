@@ -20,7 +20,7 @@ class TransactionFactory extends Factory
             'date' => $this->faker->date(),
             'description' => $this->faker->optional()->sentence(),
             'recurring_rule_id' => null,
-            'coverage_end_date' => null
+            'coverage_end_date' => fake()->optional()->date(),
         ];
     }
 

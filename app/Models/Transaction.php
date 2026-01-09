@@ -17,12 +17,16 @@ class Transaction extends Model
         'description',
         'user_id',
         'recurring_rule_id',
-        'coverage_end_date'
+        'coverage_end_date',
+        'paid',
+        'paid_at'
     ];
 
     protected $casts = [
         'date' => 'date',
         'coverage_end_date' => 'date',
+        'paid_at' => 'datetime',
+        'paid' => 'boolean'
     ];
     
     public function user() {

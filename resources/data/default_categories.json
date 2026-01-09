@@ -2,11 +2,13 @@
   { "name": "Groceries", "type": "expense", "color": "#FF6B6B" },
   { "name": "Eating Out", "type": "expense", "color": "#FF8E72" },
   { "name": "Transportation", "type": "expense", "color": "#FFA94D" },
-  { "name": "Bills & Utilities", "type": "expense", "color": "#FFD93D" },
+  { "name": "Bills & Utilities", "type": "expense", "color": "#FFD93D", "is_bill": true },
+  { "name": "Rent/Mortgage", "type": "expense", "color": "#6F4E7C", "is_bill": true },
   { "name": "Entertainment", "type": "expense", "color": "#6BCB77" },
   { "name": "Shopping", "type": "expense", "color": "#4D96FF" },
   { "name": "Health", "type": "expense", "color": "#9D4EDD" },
   { "name": "Travel", "type": "expense", "color": "#38A3A5" },
+  { "name": "Money Pot", "type": "expense", "color": "#F72585" },
 
   { "name": "Salary", "type": "income", "color": "#4CAF50" },
   { "name": "Side Income", "type": "income", "color": "#2ECC71" }

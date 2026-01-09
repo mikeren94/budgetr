@@ -6,6 +6,7 @@ const CreateTransaction = ({ onSuccess }) => {
     const handleCreate = async (payload, setErrors, setFormLoading) => {
         try {
             await axios.post("/api/transactions", payload, { withCredentials: true });
+            onSuccess();
             return true;
         } catch (error) {
             if (error.response?.status === 422) {

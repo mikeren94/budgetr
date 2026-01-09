@@ -18,6 +18,7 @@ class CategoryFactory extends Factory
             'type' => $this->faker->randomElement(['income', 'expense']),
             'color' => $this->faker->hexColor(),
             'description' => $this->faker->optional()->sentence(),
+            'is_bill' => false,
         ];
     }
 }

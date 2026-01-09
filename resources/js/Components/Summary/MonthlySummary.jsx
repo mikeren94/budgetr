@@ -2,7 +2,7 @@ import NetBalanceMeter from "../Charts/NetBalanceMeter";
 
 const MonthlySummary = ({ income, expenses, net, month }) => {
     return (
-        <div className="bg-white rounded-lg shadow p-4 max-w-md w-full">
+        <>
             <h2 className="text-xl font-semibold tracking-tight text-gray-900 mb-4">
                 Monthly Summary
             </h2>
@@ -40,7 +40,7 @@ const MonthlySummary = ({ income, expenses, net, month }) => {
                 expenses={expenses}
                 netSpend={net}
             />
-        </div>
+        </>
     );
 };
 

@@ -25,6 +25,7 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
     const [selectedCategory, setSelectedCategory] = useState(initialValues?.category_id ?? null);
     const [date, setDate] = useState(initialValues?.date ?? today);
     const [description, setDescription] = useState(initialValues?.description ?? "");
+    const [paid, setPaid] = useState(initialValues?.paid ?? true);
     const [recurringRule, setRecurringRule] = useState(
         initialValues?.recurring_rule ?? {
             isRecurring: false,
@@ -64,7 +65,8 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
             category_id: selectedCategory,
             date,
             description,
-            coverage_end_date: coverageEndDate || null
+            coverage_end_date: coverageEndDate || null,
+            paid,
         };
 
         if (recurringRule.isRecurring) {
@@ -116,11 +118,23 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
         }
     }, [initialValues]);
 
+    useEffect(() => {
+        if (!selectedCategory || categories.length === 0) return;
+
+        const category = categories.find(c => c.id === selectedCategory);
+        if (!category) return;
+
+        // Only auto-set when creating, not editing
+        if (!initialValues) {
+            setPaid(category.is_bill ? false : true);
+        }
+    }, [selectedCategory, categories]);
+
     return (
         <div>
             <form
                 onSubmit={handleSubmit}
-                className="bg-white p-6 rounded-lg shadow-md space-y-6 max-w-md"
+                className="p-6 rounded-lg space-y-6"
             >
                 <Alert
                     message={successMessage}
@@ -229,6 +243,23 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                         </div>
                     )
                 }
+
+                <div>
+                    <InputLabel value="Paid" />
+
+                    <div className="flex items-center gap-2">
+                        <Input
+                            type="checkbox"
+                            checked={paid}
+                            onChange={(e) => setPaid(e.target.checked)}
+                            className="h-4 w-4"
+                        />
+                        <span className="text-gray-700">Mark as paid</span>
+                    </div>
+
+                    {errors.paid && <InputError message={errors.paid} />}
+                </div>
+
 
                 {/* Submit */}
                 <Button
