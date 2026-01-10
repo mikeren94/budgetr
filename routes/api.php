@@ -10,6 +10,7 @@ Route::middleware(['web','auth'])->group(function() {
 
     Route::get('/transactions', [TransactionController::class, 'index']);
     Route::get('/transactions/unpaid', [TransactionController::class, 'unpaid']);
+    route::get('/transactions/upcoming', [TransactionController::class, 'upcoming']);
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);
     Route::put('/transactions/{transaction}/mark-paid', [TransactionController::class, 'markAsPaid']);
     Route::put('/transactions/{transaction}', [TransactionController::class, 'update']);

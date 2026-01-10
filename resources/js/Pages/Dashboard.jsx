@@ -11,6 +11,7 @@ import IncomeBreakdown from '@/Components/Category/IncomeBreakdown';
 import { useCategoryBreakdown } from '@/Hooks/useCategoryBreakdown';
 import { useUnpaidTransactions } from '@/Hooks/useUnpaidTransactions';
 import UnpaidTransactions from '@/Components/Transaction/UnpaidTransactions';
+import UpcomingTransactions from '@/Components/Transaction/UpcomingTransactions';
 export default function Dashboard() {
 
     const [refreshFlag, setRefreshFlag] = useState(0);
@@ -80,6 +81,10 @@ export default function Dashboard() {
                         <IncomeBreakdown categories={incomeCategories} />
                     </div>
                 )}
+
+                <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                    <UpcomingTransactions />
+                </div>
 
             </div>
         </div>

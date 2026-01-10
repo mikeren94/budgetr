@@ -132,7 +132,7 @@ class TransactionController extends Controller
                 });
             })
             ->get();
-            
+
         $income = $transactions->where('category.type', 'income')->sum('amount');
         $expenses = $transactions->where('category.type', 'expense')->sum('amount');
 
@@ -170,5 +170,37 @@ class TransactionController extends Controller
         return response()->json([
             'message' => 'Transaction marked as paid',
         ]);
+    }
+
+    public function upcoming(Request $request)
+    {
+        $user = $request->user();
+
+        $start = Carbon::now()->startOfDay();
+
+        // If the user passes ?end_date=YYYY-MM-DD
+        if ($request->has('end_date')) {
+            $end = Carbon::parse($request->end_date)->endOfDay();
+        }
+
+        // If the user passes ?range=7 or ?range=30
+        else if ($request->has('range')) {
+            $end = now()->addDays((int) $request->range)->endOfDay();
+        }
+
+        // Default: end of month
+        else {
+            $end = now()->endOfMonth();
+        }
+
+        $upcomingTransactions = Transaction::with('category')
+            ->where('user_id', $user->id)
+            ->where('paid', false)
+            ->whereBetween('date', [$start, $end])
+            ->orderBy('date')
+            ->get();
+
+
+        return TransactionResource::collection($upcomingTransactions);
     }
 }
