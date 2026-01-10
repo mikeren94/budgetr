@@ -25,6 +25,7 @@ class UpdateTransactionRequest extends FormRequest
             'amount' => ['required', 'numeric'],
             'category_id' => ['required', 'exists:categories,id'],
             'date' => ['required', 'date'],
+            'paid' => ['boolean'],
             'description' => ['nullable', 'string'],
             'recurringRule' => ['nullable', 'array'],
             'recurringRule.isRecurring' => ['boolean'],
