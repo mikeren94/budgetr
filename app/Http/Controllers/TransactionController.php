@@ -69,7 +69,7 @@ class TransactionController extends Controller
             'description' => $validated['description'] ?? null,
             'recurring_rule_id' => $rule?->id,
             'coverage_end_date' => $validated['coverage_end_date'] ?? null,
-            'paid' => $validated['paid']
+            'paid' => $validated['paid'] ?? true
         ]);
 
         return response()->json([
@@ -89,6 +89,7 @@ class TransactionController extends Controller
             'category_id' => $request->category_id,
             'date' => $request->date,
             'description' => $request->description,
+            'paid' => $request->paid ?? $transaction->paid,
         ]);
 
         // Handle recurring rule (optional for now)
