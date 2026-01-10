@@ -160,4 +160,114 @@ class CategoryTest extends TestCase
             ]);
         }
     }
+
+    public function test_user_can_update_their_category()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->for($user)->create([
+            'name' => 'Old Name',
+            'type' => 'expense',
+            'color' => '#FF5733',
+        ]);
+
+        $response = $this->actingAs($user)->putJson("/api/categories/{$category->id}", [
+            'name' => 'Updated Name',
+            'type' => 'income',
+            'color' => '#00FF00',
+        ]);
+
+        $response->assertStatus(200);
+        $response->assertJson([
+            'message' => 'Category updated successfully.',
+            'data' => [
+                'name' => 'Updated Name',
+                'type' => 'income',
+                'color' => '#00FF00',
+            ],
+        ]);
+
+        $this->assertDatabaseHas('categories', [
+            'id' => $category->id,
+            'name' => 'Updated Name',
+            'type' => 'income',
+            'color' => '#00FF00',
+        ]);
+    }
+
+    public function test_update_category_requires_valid_data()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->for($user)->create();
+
+        $response = $this->actingAs($user)->putJson("/api/categories/{$category->id}", [
+            'name' => '',
+            'type' => 'invalid',
+            'color' => 'not-a-color',
+        ]);
+
+        $response->assertStatus(422);
+        $response->assertJsonValidationErrors(['name', 'type', 'color']);
+    }
+
+    public function test_user_cannot_update_another_users_category()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        $category = Category::factory()->for($otherUser)->create();
+
+        $response = $this->actingAs($user)->putJson("/api/categories/{$category->id}", [
+            'name' => 'Hacked Name',
+        ]);
+
+        $response->assertStatus(403);
+    }
+
+    public function test_user_can_delete_their_category()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->for($user)->create();
+
+        $response = $this->actingAs($user)->deleteJson("/api/categories/{$category->id}");
+
+        $response->assertNoContent();
+
+        $this->assertDatabaseMissing('categories', [
+            'id' => $category->id,
+        ]);
+    }
+
+    public function test_user_cannot_delete_another_users_category()
+    {
+        $user = User::factory()->create();
+        $otherUser = User::factory()->create();
+
+        $category = Category::factory()->for($otherUser)->create();
+
+        $response = $this->actingAs($user)->deleteJson("/api/categories/{$category->id}");
+
+        $response->assertStatus(403);
+    }
+
+    public function test_user_can_view_a_single_category()
+    {
+        $user = User::factory()->create();
+        $category = Category::factory()->for($user)->create([
+            'name' => 'Single Category',
+            'type' => 'expense',
+            'color' => '#FF5733',
+        ]);
+
+        $response = $this->actingAs($user)->getJson("/api/categories/{$category->id}");
+
+        $response->assertOk();
+        $response->assertJson([
+            'data' => [
+                'id' => $category->id,
+                'name' => 'Single Category',
+                'type' => 'expense',
+                'color' => '#FF5733',
+            ],
+        ]);
+    }
 }

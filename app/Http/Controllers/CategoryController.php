@@ -9,9 +9,15 @@ use App\Models\Category;
 use App\Http\Requests\ListCategoryRequest;
 use App\Http\Resources\CategoryResource;
 use App\Actions\Categories\StoreCategoriesAction;
+use App\Http\Requests\UpdateCategoryRequest;
+use App\Actions\Categories\UpdateCategoryAction;
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Actions\Categories\DeleteCategoryAction;
 
 class CategoryController extends Controller
 {
+    use AuthorizesRequests;
+
     public function index(ListCategoryRequest $request, ListCategoriesAction $action) 
     {
         return CategoryResource::collection(
@@ -27,6 +33,31 @@ class CategoryController extends Controller
             'message' => 'Category created successfully.',
             'data' => new CategoryResource($category),
         ], 201);
+    }
 
+    public function show(Category $category)
+    {
+        return new CategoryResource($category);
+    }
+
+    public function update(UpdateCategoryRequest $request, Category $category, UpdateCategoryAction $action)
+    {
+        $this->authorize('update', $category);
+        
+        $updated = $action->execute($category, $request->validated());
+
+        return response()->json([
+            'message' => 'Category updated successfully.',
+            'data' => new CategoryResource($updated),
+        ]);
+    }
+
+     public function destroy(Category $category, DeleteCategoryAction $action)
+    {
+        $this->authorize('update', $category);
+
+        $action->execute($category);
+
+        return response()->noContent();
     }
 }
