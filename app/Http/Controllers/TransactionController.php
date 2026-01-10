@@ -69,6 +69,7 @@ class TransactionController extends Controller
             'description' => $validated['description'] ?? null,
             'recurring_rule_id' => $rule?->id,
             'coverage_end_date' => $validated['coverage_end_date'] ?? null,
+            'paid' => $validated['paid']
         ]);
 
         return response()->json([
@@ -140,7 +141,7 @@ class TransactionController extends Controller
             'month' => $month->format('F Y'),
             'income' => $income,
             'expenses' => $expenses,
-            'net' => $income - $expenses,
+            'net' => round($income - $expenses, 2),
             'transactions' => $transactions,
         ]);
     }

@@ -9,23 +9,29 @@ import { faArrowTrendUp, faArrowTrendDown } from "@fortawesome/free-solid-svg-ic
 import Alert from "../Utilities/Alert";
 import RecurringRuleFields from "./ReccuringRuleFields";
 
-const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLabel = "Add Transaction"}) => {
+const SubmitTransaction = ({
+    initialValues = null,
+    onSubmit,
+    onSuccess,
+    submitLabel = "Add Transaction"
+}) => {
     const today = new Date().toISOString().split("T")[0];
 
     const [categories, setCategories] = useState([]);
     const incomeCategories = categories.filter(c => c.type === "income");
     const expenseCategories = categories.filter(c => c.type === "expense");
+
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [loadingCategories, setLoadingCategories] = useState(true);
     const [successMessage, setSuccessMessage] = useState("");
-    const [showSuccess, setShowSuccess] = useState(false);
 
     const [amount, setAmount] = useState(initialValues?.amount ?? 0);
-    const [selectedCategory, setSelectedCategory] = useState(initialValues?.category_id ?? null);
+    const [selectedCategory, setSelectedCategory] = useState(null);
     const [date, setDate] = useState(initialValues?.date ?? today);
     const [description, setDescription] = useState(initialValues?.description ?? "");
     const [paid, setPaid] = useState(initialValues?.paid ?? true);
+
     const [recurringRule, setRecurringRule] = useState(
         initialValues?.recurring_rule ?? {
             isRecurring: false,
@@ -34,10 +40,34 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
             months: [],
         }
     );
+
     const [coverageEndDate, setCoverageEndDate] = useState(
         initialValues?.coverage_end_date ?? ""
     );
+
     const hasRecurringRule = recurringRule?.isRecurring;
+
+    // Build dropdown options
+    const categoryOptions = [
+        ...incomeCategories.map(c => ({
+            label: (
+                <div className="flex items-center gap-2">
+                    <FontAwesomeIcon icon={faArrowTrendUp} className="text-green-600" />
+                    <span>{c.name}</span>
+                </div>
+            ),
+            value: c.id,
+        })),
+        ...expenseCategories.map(c => ({
+            label: (
+                <div className="flex items-center gap-2">
+                    <FontAwesomeIcon icon={faArrowTrendDown} className="text-red-600" />
+                    <span>{c.name}</span>
+                </div>
+            ),
+            value: c.id,
+        })),
+    ];
 
     const getCategories = async () => {
         try {
@@ -45,7 +75,6 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                 withCredentials: true
             });
 
-            // Laravel API Resources wrap data in { data: [...] }
             setCategories(response.data.data);
         } catch (error) {
             console.error("Failed to load categories", error);
@@ -54,7 +83,31 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
         }
     };
 
-    
+    // Load categories
+    useEffect(() => {
+        getCategories();
+    }, []);
+
+    // Map initialValues.category_id → dropdown option object
+    useEffect(() => {
+        if (!initialValues || categories.length === 0) return;
+
+        const match = categoryOptions.find(opt => opt.value === initialValues.category_id);
+        setSelectedCategory(match ?? null);
+    }, [categories, initialValues]);
+
+    // Auto-set "paid" based on category type
+    useEffect(() => {
+        if (!selectedCategory || categories.length === 0) return;
+
+        const category = categories.find(c => c.id === selectedCategory.value);
+        if (!category) return;
+
+        if (!initialValues) {
+            setPaid(category.is_bill ? false : true);
+        }
+    }, [selectedCategory, categories]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -62,7 +115,7 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
 
         const payload = {
             amount,
-            category_id: selectedCategory,
+            category_id: selectedCategory?.value ?? null,
             date,
             description,
             coverage_end_date: coverageEndDate || null,
@@ -76,8 +129,6 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
         const success = await onSubmit(payload, setErrors, setLoading);
 
         if (success) {
-            
-            // Only reset for create mode
             if (!initialValues) {
                 setAmount(0);
                 setSelectedCategory(null);
@@ -86,7 +137,9 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
             }
 
             setSuccessMessage(
-                initialValues ? "Transaction updated successfully!" : "Transaction added successfully!"
+                initialValues
+                    ? "Transaction updated successfully!"
+                    : "Transaction added successfully!"
             );
 
             if (typeof onSuccess === "function") {
@@ -96,46 +149,10 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
 
         setLoading(false);
     };
-    useEffect(() => {
-        getCategories();
-    }, []);
-
-    useEffect(() => {
-        if (initialValues) {
-            setAmount(initialValues.amount ?? 0);
-            setSelectedCategory(initialValues.category_id ?? null);
-            setDate(initialValues.date ?? today);
-            setDescription(initialValues.description ?? "");
-            setRecurringRule(
-                initialValues.recurring_rule ?? {
-                    isRecurring: false,
-                    frequency: "monthly",
-                    interval: 1,
-                    months: [],
-                }
-            );
-            setCoverageEndDate(initialValues.coverage_end_date ?? "");
-        }
-    }, [initialValues]);
-
-    useEffect(() => {
-        if (!selectedCategory || categories.length === 0) return;
-
-        const category = categories.find(c => c.id === selectedCategory);
-        if (!category) return;
-
-        // Only auto-set when creating, not editing
-        if (!initialValues) {
-            setPaid(category.is_bill ? false : true);
-        }
-    }, [selectedCategory, categories]);
 
     return (
         <div>
-            <form
-                onSubmit={handleSubmit}
-                className="p-6 rounded-lg space-y-6"
-            >
+            <form onSubmit={handleSubmit} className="p-6 rounded-lg space-y-6">
                 <Alert
                     message={successMessage}
                     type="success"
@@ -158,44 +175,15 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                     {errors.amount && <InputError message={errors.amount} />}
                 </div>
 
-                {/* Category (Dropdown) */}
+                {/* Category */}
                 <div>
                     <Dropdown
                         label="Category"
                         value={selectedCategory}
                         onChange={setSelectedCategory}
-                        options={[
-                            // Income first
-                            ...incomeCategories.map(c => ({
-                                label: (
-                                    <div className="flex items-center gap-2">
-                                        <FontAwesomeIcon
-                                            icon={faArrowTrendUp}
-                                            className="text-green-600"
-                                        />
-                                        <span>{c.name}</span>
-                                    </div>
-                                ),
-                                value: c.id,
-                            })),
-
-                            // Expense next
-                            ...expenseCategories.map(c => ({
-                                label: (
-                                    <div className="flex items-center gap-2">
-                                        <FontAwesomeIcon
-                                            icon={faArrowTrendDown}
-                                            className="text-red-600"
-                                        />
-                                        <span>{c.name}</span>
-                                    </div>
-                                ),
-                                value: c.id,
-                            })),
-                        ]}
+                        options={categoryOptions}
                         placeholder={loadingCategories ? "Loading..." : "Select a category"}
                     />
-
                     {errors.category_id && <InputError message={errors.category_id} />}
                 </div>
 
@@ -221,32 +209,29 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                     {errors.description && <InputError message={errors.description} />}
                 </div>
 
-                <div>
-                    <RecurringRuleFields
-                        value={recurringRule}
-                        onChange={setRecurringRule}
-                    />
-                </div>
+                {/* Recurring Rule */}
+                <RecurringRuleFields
+                    value={recurringRule}
+                    onChange={setRecurringRule}
+                />
 
-                {
-                    hasRecurringRule && (
-                        <div>
-                            <InputLabel value="Coverage End Date" />
-                            <Input 
-                                type="date"
-                                value={coverageEndDate}
-                                onChange={(e) => setCoverageEndDate(e.target.value)}
-                            />
-                            {errors.coverage_end_date && (
-                                <InputError message={errors.coverage_end_date} />
-                            )}
-                        </div>
-                    )
-                }
+                {hasRecurringRule && (
+                    <div>
+                        <InputLabel value="Coverage End Date" />
+                        <Input
+                            type="date"
+                            value={coverageEndDate}
+                            onChange={(e) => setCoverageEndDate(e.target.value)}
+                        />
+                        {errors.coverage_end_date && (
+                            <InputError message={errors.coverage_end_date} />
+                        )}
+                    </div>
+                )}
 
+                {/* Paid */}
                 <div>
                     <InputLabel value="Paid" />
-
                     <div className="flex items-center gap-2">
                         <Input
                             type="checkbox"
@@ -256,10 +241,8 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                         />
                         <span className="text-gray-700">Mark as paid</span>
                     </div>
-
                     {errors.paid && <InputError message={errors.paid} />}
                 </div>
-
 
                 {/* Submit */}
                 <Button
@@ -272,7 +255,7 @@ const SubmitTransaction = ({initialValues = null, onSubmit, onSuccess, submitLab
                 </Button>
             </form>
         </div>
-    )
-}
+    );
+};
 
 export default SubmitTransaction;

@@ -1,27 +1,36 @@
 import { useState } from 'react';
 import useUpcomingTransactions from '@/hooks/useUpcomingTransactions';
-
+import Dropdown from '../Utilities/Dropdown';
 const UpcomingTransactions = () => {
-    const [range, setRange] = useState('month'); // default filter
+    const [range, setRange] = useState(null);
     const { transactions, loading } = useUpcomingTransactions(
-        range === 'month' ? {} : { range }
+        range?.value === 'month'
+            ? {}
+            : range?.value
+                ? { range: range.value }
+                : {}
     );
-
+    const apiRange = range?.value; // "7", "30", "month"
     return (
         <div className="card p-4">
             {/* Header */}
             <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-semibold">Upcoming Transactions</h2>
 
-                <select
-                    value={range}
-                    onChange={e => setRange(e.target.value)}
-                    className="rounded-md border border-gray-300 bg-white px-2 py-1 text-sm text-gray-700 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-                >
-                    <option value="month">End of Month</option>
-                    <option value="7">Next 7 Days</option>
-                    <option value="30">Next 30 Days</option>
-                </select>
+                 <div className="w-40">
+                    <Dropdown
+                        label={null} // no label needed in the header
+                        value={range}
+                        onChange={setRange}
+                        placeholder="Filter"
+                        options={[
+                            { label: "End of Month", value: "month" },
+                            { label: "Next 7 Days", value: "7" },
+                            { label: "Next 30 Days", value: "30" },
+                        ]}
+                    />
+                </div>
+
             </div>
 
             {/* Loading */}

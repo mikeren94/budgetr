@@ -27,7 +27,7 @@ class StoreTransactionRequest extends FormRequest
             'date' => ['required', 'date'],
             'description' => ['nullable', 'string'],
             'coverage_end_date' => ['nullable', 'date'],
-
+            'paid' => ['required', 'boolean'],
             // Recurring rule (optional)
             'recurringRule' => ['nullable', 'array'],
             'recurringRule.isRecurring' => ['required_with:recurringRule', 'boolean'],

@@ -53,11 +53,11 @@ const Dropdown = ({
             {open && (
                 <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200">
                     {options.map((opt) => (
-                        <button
+                       <button
                             key={opt.value}
                             type="button"
                             onClick={() => {
-                                onChange(opt.value);
+                                onChange(opt);
                                 setOpen(false);
                             }}
                             className="block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100"
