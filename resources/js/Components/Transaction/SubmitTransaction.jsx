@@ -32,14 +32,26 @@ const SubmitTransaction = ({
     const [description, setDescription] = useState(initialValues?.description ?? "");
     const [paid, setPaid] = useState(initialValues?.paid ?? true);
 
-    const [recurringRule, setRecurringRule] = useState(
-        initialValues?.recurring_rule ?? {
+    // ⭐ Normalize recurring rule from backend → frontend
+    const [recurringRule, setRecurringRule] = useState(() => {
+        if (initialValues?.recurring_rule) {
+            const rule = initialValues.recurring_rule;
+
+            return {
+                isRecurring: true,
+                frequency: rule.frequency,
+                interval: rule.interval,
+                months: rule.months ?? [],
+            };
+        }
+
+        return {
             isRecurring: false,
             frequency: "monthly",
             interval: 1,
             months: [],
-        }
-    );
+        };
+    });
 
     const [coverageEndDate, setCoverageEndDate] = useState(
         initialValues?.coverage_end_date ?? ""
@@ -108,6 +120,17 @@ const SubmitTransaction = ({
         }
     }, [selectedCategory, categories]);
 
+    useEffect(() => {
+        if (!hasRecurringRule) return;
+        if (!date) return;
+
+        const d = new Date(date);
+        d.setMonth(d.getMonth() + 1);
+
+        const formatted = d.toISOString().split("T")[0];
+        setCoverageEndDate(formatted);
+    }, [date, hasRecurringRule]);
+    
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -122,19 +145,27 @@ const SubmitTransaction = ({
             paid,
         };
 
+        // ⭐ Correct key for backend
         if (recurringRule.isRecurring) {
-            payload.recurringRule = recurringRule;
+            payload.recurring_rule = recurringRule;
         }
 
         const success = await onSubmit(payload, setErrors, setLoading);
 
         if (success) {
-            if (!initialValues) {
-                setAmount(0);
-                setSelectedCategory(null);
-                setDate(today);
-                setDescription('');
-            }
+            // Reset form
+            setAmount(0);
+            setSelectedCategory(null);
+            setDate(today);
+            setDescription('');
+            setPaid(true);
+            setCoverageEndDate("");
+            setRecurringRule({
+                isRecurring: false,
+                frequency: "monthly",
+                interval: 1,
+                months: [],
+            });
 
             setSuccessMessage(
                 initialValues
@@ -152,7 +183,7 @@ const SubmitTransaction = ({
 
     return (
         <div>
-            <form onSubmit={handleSubmit} className="p-6 rounded-lg space-y-6">
+            <form onSubmit={handleSubmit} className="rounded-lg space-y-6">
                 <Alert
                     message={successMessage}
                     type="success"
@@ -160,7 +191,7 @@ const SubmitTransaction = ({
                 />
 
                 <h2 className="text-xl font-semibold text-gray-800">
-                    Add Transaction
+                    {submitLabel}
                 </h2>
 
                 {/* Amount */}

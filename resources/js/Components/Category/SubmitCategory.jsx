@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import InputLabel from "../Utilities/InputLabel";
 import Input from "../Utilities/Input";
 import InputError from "../Utilities/InputError";
@@ -6,37 +7,51 @@ import Dropdown from "../Utilities/Dropdown";
 import Button from "../Utilities/Button";
 import transactionTypes from "../../../data/transaction_types.json";
 
-export default function CreateCategory({ onCreated }) {
+const SubmitCategory = ({ category = null, onSuccess }) => {
+    const isEditing = Boolean(category);
+
     const [name, setName] = useState("");
     const [type, setType] = useState("expense");
     const [color, setColor] = useState("#4f46e5");
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
+    useEffect(() => {
+        if (isEditing) {
+            setName(category.name);
+            setType(category.type);
+            setColor(category.color);
+        }
+    }, [category]);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setErrors({});
 
+        const payload = {
+            name,
+            type,
+            color,
+        };
+
+        const url = isEditing
+            ? `/api/categories/${category.id}`
+            : `/api/categories`;
+
+        const method = isEditing ? "put" : "post";
+
         try {
-            const response = await fetch("/api/categories", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ name, type, color }),
+            await axios[method](url, payload, {
+                withCredentials: true,
             });
 
-            if (response.status === 201) {
-                const data = await response.json();
-                onCreated && onCreated(data);
-
-                setName("");
-                setType("expense");
-                setColor("#4f46e5");
-            } else if (response.status === 422) {
-                const data = await response.json();
-                setErrors(data.errors || {});
+            if (onSuccess) onSuccess();
+        } catch (error) {
+            if (error.response?.status === 422) {
+                setErrors(error.response.data.errors);
+            } else {
+                console.error("Unexpected error:", error);
             }
         } finally {
             setLoading(false);
@@ -44,12 +59,9 @@ export default function CreateCategory({ onCreated }) {
     };
 
     return (
-        <form
-            onSubmit={handleSubmit}
-            className="rounded-lg space-y-6"
-        >
+        <form onSubmit={handleSubmit} className="rounded-lg space-y-6">
             <h2 className="text-xl font-semibold text-gray-800">
-                Create Category
+                {isEditing ? "Edit Category" : "Create Category"}
             </h2>
 
             {/* Name */}
@@ -63,23 +75,21 @@ export default function CreateCategory({ onCreated }) {
                 {errors.name && <InputError message={errors.name} />}
             </div>
 
-            {/* Type (Dropdown) */}
+            {/* Type */}
             <div>
                 <Dropdown
                     label="Type"
                     value={type}
                     onChange={setType}
-                    options={transactionTypes.map(t => ({
+                    options={transactionTypes.map((t) => ({
                         label: t.name,
                         value: t.name.toLowerCase(),
                     }))}
                 />
-
-
                 {errors.type && <InputError message={errors.type} />}
             </div>
 
-            {/* Colour Picker */}
+            {/* Color */}
             <div>
                 <InputLabel value="Colour" />
 
@@ -109,8 +119,16 @@ export default function CreateCategory({ onCreated }) {
                 variant="primary"
                 className="w-full"
             >
-                {loading ? "Creating..." : "Create Category"}
+                {loading
+                    ? isEditing
+                        ? "Saving..."
+                        : "Creating..."
+                    : isEditing
+                    ? "Save Changes"
+                    : "Create Category"}
             </Button>
         </form>
     );
-}
+};
+
+export default SubmitCategory;

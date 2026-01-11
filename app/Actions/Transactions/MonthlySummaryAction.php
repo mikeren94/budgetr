@@ -8,22 +8,22 @@ use App\Models\User;
 
 class MonthlySummaryAction
 {
-    public function execute(User $user): array
+    public function execute(User $user, ?string $month): array
     {
-        $month = Carbon::parse($request->month ?? now());
+        $month = Carbon::parse($month ?? now());
         $start = $month->copy()->startOfMonth();
         $end = $month->copy()->endOfMonth();
 
         $transactions = $this->getTransactions($user, $start, $end);
 
-        $income = $transactions->where('category.type', 'income')->sum('amount');
-        $expenses = $transactions->where('category.type', 'expense')->sum('amount');
-
+        $income = round($transactions->where('category.type', 'income')->sum('amount'), 2);
+        $expenses = round($transactions->where('category.type', 'expense')->sum('amount'), 2);
+        $net = round($income - $expenses, 2);
         return [
             'month' => $month->format('F Y'),
             'income' => $income,
             'expenses' => $expenses,
-            'net' => round($income - $expenses, 2),
+            'net' => $net,
             'transactions' => $transactions,
         ];
     }

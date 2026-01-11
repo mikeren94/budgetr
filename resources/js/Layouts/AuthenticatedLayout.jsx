@@ -41,6 +41,12 @@ export default function AuthenticatedLayout({ header, children }) {
                                 >
                                     Transactions
                                 </NavLink>
+                                <NavLink
+                                    href={route('categories')}
+                                    active={route().current('categories')}
+                                >
+                                    Categories
+                                </NavLink>
                             </div>
                         </div>
 

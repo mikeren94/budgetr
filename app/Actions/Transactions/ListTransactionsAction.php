@@ -10,7 +10,8 @@ class ListTransactionsAction
 {
     public function execute(User $user, ?string $month = null): Collection
     {
-        $query = Transaction::where('user_id', $user->id);
+        $query = Transaction::with(['category', 'recurringRule'])
+            ->where('user_id', $user->id);
 
         if ($month) {
             $query->forMonth($month);

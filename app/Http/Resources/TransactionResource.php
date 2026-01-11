@@ -24,7 +24,8 @@ class TransactionResource extends JsonResource
             'category_id' => $this->category_id,
             'paid'        => $this->paid,
             'paid_at'     => $this->paid_at,
-            'coverage_end_date' => $this->coverage_end_date
+            'coverage_end_date' => optional($this->coverage_end_date)->format('Y-m-d'),
+            'recurring_rule' => $this->recurringRule,
         ];
 
     }

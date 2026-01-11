@@ -43,7 +43,7 @@ const Transactions = () => {
                     {/* LEFT COLUMN */}
                     <div className="col-span-2 bg-white rounded-lg shadow p-4">
                         {editingId ? (
-                            <EditTransaction id={editingId} onSuccess={handleSuccess} />
+                            <EditTransaction id={editingId} onSuccess={handleSuccess} onCancel={() => setEditingId(null)} />
                         ) : (
                             <CreateTransaction onSuccess={handleSuccess} />
                         )}

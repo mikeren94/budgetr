@@ -4,25 +4,34 @@ import CreateTransaction from '@/Components/Transaction/CreateTransaction';
 import TransactionList from '@/Components/Transaction/TransactionList';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import { useState } from 'react';
-import { useMonthlySummary } from '@/hooks/useMonthlySummary'; // assuming this is where it lives
+import { useState, useEffect } from 'react';
+import { useMonthlySummary } from '@/hooks/useMonthlySummary';
 import ExpenseBreakdown from '@/Components/Category/ExpenseBreakdown';
 import IncomeBreakdown from '@/Components/Category/IncomeBreakdown';
 import { useCategoryBreakdown } from '@/Hooks/useCategoryBreakdown';
 import { useUnpaidTransactions } from '@/Hooks/useUnpaidTransactions';
 import UnpaidTransactions from '@/Components/Transaction/UnpaidTransactions';
 import UpcomingTransactions from '@/Components/Transaction/UpcomingTransactions';
+import Calendar from '@/Components/Calendar';
 export default function Dashboard() {
 
-    const [refreshFlag, setRefreshFlag] = useState(0);
-    const triggerRefresh = () => setRefreshFlag(f => f + 1);
     const currentMonth = new Date().toISOString().slice(0, 7);
-    const { data, loading, error } = useMonthlySummary(currentMonth);
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+
+    // Load monthly summary for the selected month
+    const { data, loading, error } = useMonthlySummary(selectedMonth);
+
+    // Load unpaid transactions
     const {
         transactions: unpaidTransactions,
         loading: unpaidTransactionsLoading,
         refresh: refreshUnpaid
     } = useUnpaidTransactions();
+
+    // Refresh unpaid transactions whenever the month changes
+    useEffect(() => {
+        refreshUnpaid();
+    }, [selectedMonth]);
 
     const transactions = data?.transactions ?? [];
     const income = data?.income ?? 0;
@@ -33,62 +42,90 @@ export default function Dashboard() {
     const { income: incomeCategories, expenses: expenseCategories } =
         useCategoryBreakdown(transactions);
 
-        
     const markTransactionPaid = async (id) => {
         const confirmed = window.confirm("Mark this transaction as paid?");
         if (!confirmed) return;
 
         await axios.put(`/api/transactions/${id}/mark-paid`);
         refreshUnpaid();
-    }
+    };
+
+    const selectMonth = (e) => {
+        setSelectedMonth(e.target.value);
+    };
+
+    const billsByDate = {
+    "2026-01-03": 2,
+    "2026-01-05": 1,
+    "2026-01-12": 3,
+    };
+
     return (
         <AuthenticatedLayout
             header={
-                <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Dashboard
-                </h2>
+                <div>
+                    <h2 className="text-xl font-semibold leading-tight text-gray-800">
+                        Dashboard
+                    </h2>
+
+                    <input
+                        type="month"
+                        value={selectedMonth}
+                        onChange={selectMonth}
+                        className="border rounded px-2 py-1 mt-2"
+                    />
+                </div>
             }
         >
             <Head title="Dashboard" />
 
-        <div className="py-12">
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-6 px-6">
-                { unpaidTransactions.length > 0 && (
-                    <div className="col-span-6 bg-white rounded-lg shadow p-4">
-                        <UnpaidTransactions transactions={unpaidTransactions} loading={unpaidTransactionsLoading} onMarkPaid={markTransactionPaid} />
-                    </div>
-                ) }
+            <div className="py-12">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 px-6">
 
-                <div className="col-span-2 bg-white rounded-lg shadow p-4">
-                    <MonthlySummary
-                        income={income}
-                        expenses={expenses}
-                        net={net}
-                        month={month}
-                        transactions={transactions}
-                        loading={loading}
-                        error={error}
-                    />
-                </div>
-                {expenseCategories.length > 0 && (
+                    {unpaidTransactions.length > 0 && (
+                        <div className="col-span-6 bg-white rounded-lg shadow p-4">
+                            <UnpaidTransactions
+                                transactions={unpaidTransactions}
+                                loading={unpaidTransactionsLoading}
+                                onMarkPaid={markTransactionPaid}
+                            />
+                        </div>
+                    )}
+
                     <div className="col-span-2 bg-white rounded-lg shadow p-4">
-                        <ExpenseBreakdown categories={expenseCategories} />
+                        <MonthlySummary
+                            income={income}
+                            expenses={expenses}
+                            net={net}
+                            month={month}
+                            transactions={transactions}
+                            loading={loading}
+                            error={error}
+                        />
                     </div>
-                )}
 
-                {incomeCategories.length > 1 && (
-                    <div className="col-span-3 bg-white rounded-lg shadow p-4">
-                        <IncomeBreakdown categories={incomeCategories} />
+                    {expenseCategories.length > 0 && (
+                        <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                            <ExpenseBreakdown categories={expenseCategories} />
+                        </div>
+                    )}
+
+                    {incomeCategories.length > 1 && (
+                        <div className="col-span-3 bg-white rounded-lg shadow p-4">
+                            <IncomeBreakdown categories={incomeCategories} />
+                        </div>
+                    )}
+
+                    <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                        <UpcomingTransactions />
                     </div>
-                )}
+                    <div className="col-span-4 bg-white rounded-lg shadow p-4">
+                        <Calendar month={selectedMonth} billsByDate={billsByDate} />
+                    </div>
 
-                <div className="col-span-2 bg-white rounded-lg shadow p-4">
-                    <UpcomingTransactions />
                 </div>
-
             </div>
-        </div>
-            
+
         </AuthenticatedLayout>
     );
 }
