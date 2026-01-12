@@ -5,6 +5,8 @@ use Illuminate\Http\Request;
 use App\Models\Transaction;
 use Carbon\Carbon;
 use App\Models\User;
+use App\Http\Resources\TransactionResource;
+use App\Models\RecurringRule;
 
 class MonthlySummaryAction
 {
@@ -15,16 +17,23 @@ class MonthlySummaryAction
         $end = $month->copy()->endOfMonth();
 
         $transactions = $this->getTransactions($user, $start, $end);
+        // Load virtual recurring transactions
+        $virtual = RecurringRule::where('user_id', $user->id)
+            ->where('active', true)
+            ->get()
+            ->flatMap(fn($rule) => $rule->virtualOccurrencesForMonth($month));
 
-        $income = round($transactions->where('category.type', 'income')->sum('amount'), 2);
-        $expenses = round($transactions->where('category.type', 'expense')->sum('amount'), 2);
+            // Merge real + virtual
+        $allTransactions = $transactions->concat($virtual);
+        $income = round($allTransactions->where('category.type', 'income')->sum('amount'), 2);
+        $expenses = round($allTransactions->where('category.type', 'expense')->sum('amount'), 2);
         $net = round($income - $expenses, 2);
         return [
             'month' => $month->format('F Y'),
             'income' => $income,
             'expenses' => $expenses,
             'net' => $net,
-            'transactions' => $transactions,
+            'transactions' => TransactionResource::collection($allTransactions),
         ];
     }
 

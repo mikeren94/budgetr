@@ -4,7 +4,7 @@ import CreateTransaction from '@/Components/Transaction/CreateTransaction';
 import TransactionList from '@/Components/Transaction/TransactionList';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head } from '@inertiajs/react';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useMonthlySummary } from '@/hooks/useMonthlySummary';
 import ExpenseBreakdown from '@/Components/Category/ExpenseBreakdown';
 import IncomeBreakdown from '@/Components/Category/IncomeBreakdown';
@@ -54,11 +54,28 @@ export default function Dashboard() {
         setSelectedMonth(e.target.value);
     };
 
-    const billsByDate = {
-    "2026-01-03": 2,
-    "2026-01-05": 1,
-    "2026-01-12": 3,
-    };
+    const calendarByDate = useMemo(() => {
+        const map = {};
+
+        transactions.forEach(t => {
+            if (!t.category) return;
+
+            const date = t.date; // "YYYY-MM-DD"
+            if (!map[date]) {
+                map[date] = { bills: 0, income: 0 };
+            }
+
+            if (t.category.type === "expense") {
+                map[date].bills += 1;
+            }
+
+            if (t.category.type === "income") {
+                map[date].income += 1;
+            }
+        });
+
+        return map;
+    }, [transactions]);
 
     return (
         <AuthenticatedLayout
@@ -120,7 +137,7 @@ export default function Dashboard() {
                         <UpcomingTransactions />
                     </div>
                     <div className="col-span-4 bg-white rounded-lg shadow p-4">
-                        <Calendar month={selectedMonth} billsByDate={billsByDate} />
+                        <Calendar month={selectedMonth} calendarByDate={calendarByDate} />    
                     </div>
 
                 </div>

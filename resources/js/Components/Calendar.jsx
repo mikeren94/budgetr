@@ -1,48 +1,42 @@
 import { useMemo } from "react";
 
-export default function Calendar({ month, billsByDate }) {
-    // month = "2026-01"
+export default function Calendar({ month, calendarByDate }) {
 
     const days = useMemo(() => {
         const [year, monthNum] = month.split("-").map(Number);
         const firstDay = new Date(year, monthNum - 1, 1);
         const lastDay = new Date(year, monthNum, 0);
 
-        const startDayOfWeek = firstDay.getDay(); // 0 = Sunday
+        const startDayOfWeek = firstDay.getDay();
         const totalDays = lastDay.getDate();
 
         const calendar = [];
 
-        // Fill leading blanks
         for (let i = 0; i < startDayOfWeek; i++) {
             calendar.push(null);
         }
 
-        // Fill actual days
         for (let day = 1; day <= totalDays; day++) {
             const dateStr = `${year}-${String(monthNum).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+
             calendar.push({
                 day,
                 dateStr,
-                bills: billsByDate[dateStr] ?? 0,
+                bills: calendarByDate[dateStr]?.bills ?? 0,
+                income: calendarByDate[dateStr]?.income ?? 0,
             });
         }
 
         return calendar;
-    }, [month, billsByDate]);
+    }, [month, calendarByDate]);
 
     return (
         <div className="bg-white">
-            <h3 className="text-lg font-semibold mb-4">Bills Calendar</h3>
+            <h3 className="text-lg font-semibold mb-4">Bills & Income Calendar</h3>
 
             <div className="grid grid-cols-7 text-center font-medium text-gray-600 mb-2">
-                <div>Sun</div>
-                <div>Mon</div>
-                <div>Tue</div>
-                <div>Wed</div>
-                <div>Thu</div>
-                <div>Fri</div>
-                <div>Sat</div>
+                <div>Sun</div><div>Mon</div><div>Tue</div>
+                <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
             </div>
 
             <div className="grid grid-cols-7 gap-2">
@@ -55,11 +49,19 @@ export default function Calendar({ month, billsByDate }) {
                             <>
                                 <span className="text-sm text-gray-700">{day.day}</span>
 
-                                {day.bills > 0 && (
-                                    <div className="text-xs bg-red-100 text-red-700 rounded px-2 py-0.5">
-                                        {day.bills} bill{day.bills > 1 ? "s" : ""}
-                                    </div>
-                                )}
+                                <div className="flex flex-col gap-1 items-center">
+                                    {day.bills > 0 && (
+                                        <div className="text-xs bg-red-100 text-red-700 rounded px-2 py-0.5">
+                                            {day.bills} bill{day.bills > 1 ? "s" : ""}
+                                        </div>
+                                    )}
+
+                                    {day.income > 0 && (
+                                        <div className="text-xs bg-green-100 text-green-700 rounded px-2 py-0.5">
+                                            {day.income} income
+                                        </div>
+                                    )}
+                                </div>
                             </>
                         ) : (
                             <span></span>

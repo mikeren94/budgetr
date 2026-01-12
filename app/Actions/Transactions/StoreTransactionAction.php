@@ -29,13 +29,13 @@ class StoreTransactionAction
 
     private function createRecurringRuleIfNeeded(User $user, array $data): ?RecurringRule
     {
-        if (empty($data['recurringRule']) || !$data['recurringRule']['isRecurring']) {
+        if (empty($data['recurring_rule']) || !$data['recurring_rule']['isRecurring']) {
             return null;
         }
 
-        $ruleData = $data['recurringRule'];
+        $ruleData = $data['recurring_rule'];
 
-        return RecurringRule::create([
+        $rule = RecurringRule::create([
             'user_id' => $user->id,
             'category_id' => $data['category_id'],
             'amount' => $data['amount'],
@@ -43,8 +43,12 @@ class StoreTransactionAction
             'interval' => $ruleData['interval'],
             'months' => $ruleData['months'] ?? [],
             'start_date' => $data['date'],
-            'next_occurrence' => $data['date'],
             'active' => true,
         ]);
+
+        $rule->initializeNextOccurrence();
+        $rule->save();
+
+        return $rule;
     }
 }

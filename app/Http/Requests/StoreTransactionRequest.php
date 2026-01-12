@@ -29,11 +29,11 @@ class StoreTransactionRequest extends FormRequest
             'coverage_end_date' => ['nullable', 'date'],
             'paid' => ['boolean'],
             // Recurring rule (optional)
-            'recurringRule' => ['nullable', 'array'],
-            'recurringRule.isRecurring' => ['required_with:recurringRule', 'boolean'],
-            'recurringRule.frequency' => ['required_with:recurringRule', 'string'],
-            'recurringRule.interval' => ['required_with:recurringRule', 'integer'],
-            'recurringRule.months' => ['nullable', 'array'],
+            'recurring_rule' => ['nullable', 'array'],
+            'recurring_rule.isRecurring' => ['required_with:recurring_rule', 'boolean'],
+            'recurring_rule.frequency' => ['required_with:recurring_rule', 'string'],
+            'recurring_rule.interval' => ['required_with:recurring_rule', 'integer'],
+            'recurring_rule.months' => ['nullable', 'array'],
         ];
     }
 
