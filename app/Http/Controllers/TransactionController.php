@@ -24,9 +24,7 @@ class TransactionController extends Controller
 
     public function index(ListTransactionRequest $request, ListTransactionsAction $action)
     {
-        $transactions = $action->execute($request->user(), $request->month);
-
-        return TransactionResource::collection($transactions);
+        return $action->execute($request->user(), $request->month);
     }
 
     public function show(Transaction $transaction)

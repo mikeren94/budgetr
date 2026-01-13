@@ -97,10 +97,10 @@ export default function Dashboard() {
             <Head title="Dashboard" />
 
             <div className="py-12">
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 px-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 px-6">
 
                     {unpaidTransactions.length > 0 && (
-                        <div className="col-span-6 bg-white rounded-lg shadow p-4">
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-white rounded-lg shadow p-4">
                             <UnpaidTransactions
                                 transactions={unpaidTransactions}
                                 loading={unpaidTransactionsLoading}
@@ -109,7 +109,7 @@ export default function Dashboard() {
                         </div>
                     )}
 
-                    <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                    <div className="col-span-1 sm:col-span-1 lg:col-span-2 md:col-span-3 bg-white rounded-lg shadow p-4">
                         <MonthlySummary
                             income={income}
                             expenses={expenses}
@@ -122,24 +122,23 @@ export default function Dashboard() {
                     </div>
 
                     {expenseCategories.length > 0 && (
-                        <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                        <div className="col-span-1 sm:col-span-1 md:col-span-3 lg:col-span-2 bg-white rounded-lg shadow p-4">
                             <ExpenseBreakdown categories={expenseCategories} />
                         </div>
                     )}
 
                     {incomeCategories.length > 1 && (
-                        <div className="col-span-3 bg-white rounded-lg shadow p-4">
+                        <div className="col-span-1 sm:col-span-2 lg:col-span-3 bg-white rounded-lg shadow p-4">
                             <IncomeBreakdown categories={incomeCategories} />
                         </div>
                     )}
 
-                    <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                    <div className="col-span-1 sm:col-span-1 md:col-span-6 lg:col-span-2 bg-white rounded-lg shadow p-4">
                         <UpcomingTransactions />
                     </div>
-                    <div className="col-span-4 bg-white rounded-lg shadow p-4">
-                        <Calendar month={selectedMonth} calendarByDate={calendarByDate} />    
+                    <div className="col-span-1 sm:col-span-2 md:col-span-6 lg:col-span-6 bg-white rounded-lg shadow p-4 h-full flex flex-col">
+                        <Calendar month={selectedMonth} calendarByDate={calendarByDate} />
                     </div>
-
                 </div>
             </div>
 

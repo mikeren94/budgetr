@@ -1,7 +1,6 @@
 import { useMemo } from "react";
 
 export default function Calendar({ month, calendarByDate }) {
-
     const days = useMemo(() => {
         const [year, monthNum] = month.split("-").map(Number);
         const firstDay = new Date(year, monthNum - 1, 1);
@@ -31,19 +30,32 @@ export default function Calendar({ month, calendarByDate }) {
     }, [month, calendarByDate]);
 
     return (
-        <div className="bg-white">
+        <div className="bg-white h-full flex flex-col">
             <h3 className="text-lg font-semibold mb-4">Bills & Income Calendar</h3>
 
-            <div className="grid grid-cols-7 text-center font-medium text-gray-600 mb-2">
+            {/* Weekday headers */}
+            <div className="grid grid-cols-7 text-center font-medium text-gray-600 mb-2 sticky top-0 bg-white z-10">
                 <div>Sun</div><div>Mon</div><div>Tue</div>
                 <div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
             </div>
 
-            <div className="grid grid-cols-7 gap-2">
+            {/* Calendar grid */}
+            <div className="
+                grid grid-cols-7 gap-2 flex-grow 
+                auto-rows-fr
+                sm:auto-rows-[80px]
+                md:auto-rows-[100px]
+                lg:auto-rows-fr
+            ">
                 {days.map((day, idx) => (
                     <div
                         key={idx}
-                        className="h-20 border rounded p-1 flex flex-col items-center justify-between"
+                        className="
+                            border rounded p-1 
+                            flex flex-col items-center justify-between
+                            bg-gray-50
+                            aspect-square sm:aspect-auto
+                        "
                     >
                         {day ? (
                             <>
@@ -52,13 +64,13 @@ export default function Calendar({ month, calendarByDate }) {
                                 <div className="flex flex-col gap-1 items-center">
                                     {day.bills > 0 && (
                                         <div className="text-xs bg-red-100 text-red-700 rounded px-2 py-0.5">
-                                            {day.bills} bill{day.bills > 1 ? "s" : ""}
+                                            {day.bills}
                                         </div>
                                     )}
 
                                     {day.income > 0 && (
                                         <div className="text-xs bg-green-100 text-green-700 rounded px-2 py-0.5">
-                                            {day.income} income
+                                            {day.income}
                                         </div>
                                     )}
                                 </div>

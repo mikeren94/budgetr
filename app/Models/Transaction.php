@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 
 class Transaction extends Model
 {
@@ -28,7 +29,7 @@ class Transaction extends Model
         'paid_at' => 'datetime',
         'paid' => 'boolean'
     ];
-    
+        
     public function user() {
         return $this->belongsTo(User::class);
     }

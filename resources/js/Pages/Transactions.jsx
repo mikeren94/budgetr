@@ -6,7 +6,8 @@ import { useTransactions } from "@/Hooks/useTransactions";
 import { useState } from "react";
 import EditTransaction from "@/Components/Transaction/EditTransaction";
 const Transactions = () => {
-    const { transactions, loading, refresh } = useTransactions();
+
+    const { transactions, loading, pagination, setPage } = useTransactions();
 
     const [editingId, setEditingId] = useState(null);
 
@@ -38,10 +39,10 @@ const Transactions = () => {
             <Head title="Transactions" />
 
             <div className="py-12">
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 px-6">
 
                     {/* LEFT COLUMN */}
-                    <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                    <div className="col-span-1 lg:col-span-2 bg-white rounded-lg shadow p-4">
                         {editingId ? (
                             <EditTransaction id={editingId} onSuccess={handleSuccess} onCancel={() => setEditingId(null)} />
                         ) : (
@@ -50,12 +51,14 @@ const Transactions = () => {
                     </div>
 
                     {/* RIGHT COLUMN */}
-                    <div className="col-span-4 bg-white rounded-lg shadow p-4">
+                    <div className="col-span-1 lg:col-span-4 bg-white rounded-lg shadow p-4">
                         <TransactionList
                             transactions={transactions}
                             loading={loading}
                             onEdit={handleEdit}
                             onDelete={handleDelete}
+                            pagination={pagination}
+                            setPage={setPage}
                         />
                     </div>
 

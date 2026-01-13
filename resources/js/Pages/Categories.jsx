@@ -25,10 +25,10 @@ const Categories = () => {
             <Head title="Categories" />
 
             <div className="py-12">
-                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 px-6">
 
                     {/* Left column: form */}
-                    <div className="col-span-2 bg-white rounded-lg shadow p-4">
+                    <div className="col-span-1 lg:col-span-2 bg-white rounded-lg shadow p-4">
                         <SubmitCategory
                             category={categoryToEdit}
                             onSuccess={() => {
@@ -39,7 +39,7 @@ const Categories = () => {
                     </div>
 
                     {/* Right column: list */}
-                    <div className="col-span-4">
+                    <div className="col-span-1 lg:col-span-4 bg-white rounded-lg shadow p-4">
                         {loading ? (
                             <p>Loading categories…</p>
                         ) : (

@@ -10,8 +10,7 @@ class ListUpcomingTransactionsAction
 {
     public function execute(User $user, ?string $endDate = null, ?int $range = null): Collection
     {
-        $start = Carbon::now()->startOfDay();
-
+        $start = Carbon::now()->startOfYear();
         // If the user passes ?end_date=YYYY-MM-DD
         if ($endDate) {
             $end = Carbon::parse($endDate)->endOfDay();
