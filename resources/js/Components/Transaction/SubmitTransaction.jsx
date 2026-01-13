@@ -240,7 +240,6 @@ const SubmitTransaction = ({
                     {errors.description && <InputError message={errors.description} />}
                 </div>
 
-                {/* Recurring Rule */}
                 <RecurringRuleFields
                     value={recurringRule}
                     onChange={setRecurringRule}
