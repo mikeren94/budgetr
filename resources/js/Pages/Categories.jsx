@@ -14,6 +14,18 @@ const Categories = () => {
         refreshCategories
     } = useCategories();
 
+    const onDeleteCategory = async (category) => {
+        const confirmed = window.confirm("Are you sure you want to delete this category?");
+        if (!confirmed) return;
+
+        try {
+            await axios.delete(`/api/categories/${category.id}`, { withCredentials: true });
+            refreshCategories();
+        } catch (error) {
+            console.error("Failed to delete category", error);
+        }
+
+    };
     return (
         <AuthenticatedLayout
             header={
@@ -46,6 +58,7 @@ const Categories = () => {
                             <CategoriesList
                                 categories={categories}
                                 onEdit={setCategoryToEdit}
+                                onDelete={onDeleteCategory}
                             />
                         )}
                     </div>

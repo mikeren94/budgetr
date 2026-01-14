@@ -1,4 +1,4 @@
-const CategoriesList = ({ categories, onEdit }) => {
+const CategoriesList = ({ categories, onEdit, onDelete }) => {
     return (
         <div className="">
             <h3 className="text-lg font-semibold mb-4">Your Categories</h3>
@@ -31,16 +31,28 @@ const CategoriesList = ({ categories, onEdit }) => {
                         </div>
 
                         {/* RIGHT SIDE */}
-                        <button
-                            onClick={() => onEdit(cat)}
-                            className="
-                                text-indigo-600 hover:text-indigo-800 
-                                text-sm font-medium
-                                sm:self-auto self-start
-                            "
-                        >
-                            Edit
-                        </button>
+                        <div className="space-y-3 space-x-2">
+                            <button
+                                onClick={() => onEdit(cat)}
+                                className="
+                                    text-indigo-600 hover:text-indigo-800 hover:underline 
+                                    text-sm font-medium
+                                    sm:self-auto self-start
+                                "
+                            >
+                                Edit
+                            </button>
+                            <button
+                                onClick={() => onDelete(cat)}
+                                className="
+                                    text-red-600 hover:text-red-800 hover:underline 
+                                    text-sm font-medium
+                                    sm:self-auto self-start
+                                "
+                            >
+                                Delete
+                            </button>
+                        </div>
                     </li>
                 ))}
             </ul>

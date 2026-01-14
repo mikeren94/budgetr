@@ -15,7 +15,7 @@ const TransactionList = ({
     if (!transactions || transactions.length === 0) {
         return <p className="text-gray-500">No transactions found.</p>;
     }
-    console.log(pagination);
+
     return (
         <div className="space-y-3">
             {transactions.map((t) => (
@@ -32,6 +32,12 @@ const TransactionList = ({
                     <div className="flex-1">
                         <p className="font-medium">{t.description || "No description"}</p>
                         <p className="text-sm text-gray-500">{t.date}</p>
+
+                        {!t.category && (
+                            <p className="text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded inline-block mt-1">
+                                No category assigned
+                            </p>
+                        )}
                     </div>
 
                     {/* RIGHT SIDE */}

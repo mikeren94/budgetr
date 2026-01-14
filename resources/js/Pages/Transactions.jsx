@@ -28,7 +28,6 @@ const Transactions = () => {
     };
 
     const handleSuccess = () => {
-        refresh();
         setEditingId(null); // go back to create mode
     };
 

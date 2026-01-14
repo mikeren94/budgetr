@@ -80,7 +80,7 @@ const SubmitCategory = ({ category = null, onSuccess }) => {
                 <Dropdown
                     label="Type"
                     value={type}
-                    onChange={setType}
+                    onChange={(option) => setType(option.value)} 
                     options={transactionTypes.map((t) => ({
                         label: t.name,
                         value: t.name.toLowerCase(),

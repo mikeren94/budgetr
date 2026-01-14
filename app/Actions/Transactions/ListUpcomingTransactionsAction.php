@@ -25,7 +25,7 @@ class ListUpcomingTransactionsAction
         else {
             $end = now()->endOfMonth();
         }
-        
+
         return $this->getUpcomingTransactions($user, $start, $end);
     }
 

@@ -13,6 +13,9 @@ import { useUnpaidTransactions } from '@/Hooks/useUnpaidTransactions';
 import UnpaidTransactions from '@/Components/Transaction/UnpaidTransactions';
 import UpcomingTransactions from '@/Components/Transaction/UpcomingTransactions';
 import Calendar from '@/Components/Calendar';
+import useUpcomingTransactions from '@/hooks/useUpcomingTransactions';
+import axios from 'axios';
+
 export default function Dashboard() {
 
     const currentMonth = new Date().toISOString().slice(0, 7);
@@ -47,7 +50,9 @@ export default function Dashboard() {
         if (!confirmed) return;
 
         await axios.put(`/api/transactions/${id}/mark-paid`);
+
         refreshUnpaid();
+        refreshUpcoming();
     };
 
     const selectMonth = (e) => {
@@ -76,6 +81,25 @@ export default function Dashboard() {
 
         return map;
     }, [transactions]);
+
+    // -----------------------------
+    // UPCOMING TRANSACTIONS SECTION
+    // -----------------------------
+
+    const [range, setRange] = useState(null);
+
+    // Memoize params to prevent infinite loops
+    const upcomingParams = useMemo(() => {
+        if (range?.value === "month") return {};
+        if (range?.value) return { range: range.value };
+        return {};
+    }, [range]);
+
+    const {
+        transactions: upcoming,
+        loading: upcomingLoading,
+        refresh: refreshUpcoming
+    } = useUpcomingTransactions(upcomingParams);
 
     return (
         <AuthenticatedLayout
@@ -134,8 +158,14 @@ export default function Dashboard() {
                     )}
 
                     <div className="col-span-1 sm:col-span-1 md:col-span-6 lg:col-span-2 bg-white rounded-lg shadow p-4">
-                        <UpcomingTransactions />
+                        <UpcomingTransactions
+                            transactions={upcoming}
+                            loading={upcomingLoading}
+                            range={range}
+                            setRange={setRange}
+                        />
                     </div>
+
                     <div className="col-span-1 sm:col-span-2 md:col-span-6 lg:col-span-6 bg-white rounded-lg shadow p-4 h-full flex flex-col">
                         <Calendar month={selectedMonth} calendarByDate={calendarByDate} />
                     </div>

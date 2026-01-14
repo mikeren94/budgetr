@@ -1,25 +1,14 @@
-import { useState } from 'react';
-import useUpcomingTransactions from '@/hooks/useUpcomingTransactions';
 import Dropdown from '../Utilities/Dropdown';
-const UpcomingTransactions = () => {
-    const [range, setRange] = useState(null);
-    const { transactions, loading } = useUpcomingTransactions(
-        range?.value === 'month'
-            ? {}
-            : range?.value
-                ? { range: range.value }
-                : {}
-    );
-    const apiRange = range?.value; // "7", "30", "month"
+
+const UpcomingTransactions = ({ transactions, loading, range, setRange }) => {
     return (
         <div className="card p-4">
-            {/* Header */}
             <div className="flex items-center justify-between mb-3">
                 <h2 className="text-lg font-semibold">Upcoming Transactions</h2>
 
-                 <div className="w-40">
+                <div className="w-40">
                     <Dropdown
-                        label={null} // no label needed in the header
+                        label={null}
                         value={range}
                         onChange={setRange}
                         placeholder="Filter"
@@ -30,20 +19,12 @@ const UpcomingTransactions = () => {
                         ]}
                     />
                 </div>
-
             </div>
 
-            {/* Loading */}
-            {loading && (
-                <p className="text-sm text-gray-500">Loading…</p>
-            )}
-
-            {/* Empty state */}
             {!loading && transactions.length === 0 && (
                 <p className="text-sm text-gray-500">No upcoming transactions</p>
             )}
 
-            {/* List */}
             <ul className="space-y-2">
                 {transactions.map(t => (
                     <li
@@ -63,6 +44,6 @@ const UpcomingTransactions = () => {
             </ul>
         </div>
     );
-}
+};
 
 export default UpcomingTransactions;

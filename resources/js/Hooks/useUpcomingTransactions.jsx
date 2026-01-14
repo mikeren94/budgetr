@@ -1,27 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-export default function useUpcomingTransactions({ range, endDate } = {}) {
+export default function useUpcomingTransactions(params, refreshKey) {
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        let mounted = true;
-
-        const params = {};
-
-        if (range) params.range = range;
-        if (endDate) params.end_date = endDate;
+    const fetchUpcoming = useCallback(() => {
+        setLoading(true);
 
         axios.get('/api/transactions/upcoming', { params })
             .then(res => {
-                if (mounted) setTransactions(res.data.data);
-            })
-            .finally(() => {
-                if (mounted) setLoading(false);
+                setTransactions(res.data.data);
+                setLoading(false);
             });
+    }, [params]);
 
-        return () => { mounted = false };
-    }, [range, endDate]);
+    useEffect(() => {
+        fetchUpcoming();
+    }, [fetchUpcoming, refreshKey]);
 
     return { transactions, loading };
 }
