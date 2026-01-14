@@ -4,10 +4,10 @@ import NavLink from '@/Components/NavLink';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink';
 import { Link, usePage } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
-
+import { router } from '@inertiajs/react';
 export default function AuthenticatedLayout({ header, children }) {
     const user = usePage().props.auth.user;
-
+    const { feedbackEmail } = usePage().props;
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
@@ -24,7 +24,7 @@ export default function AuthenticatedLayout({ header, children }) {
                         <div className="flex">
                             <div className="flex shrink-0 items-center">
                                 <Link href="/">
-                                    <ApplicationLogo className="block h-9 w-auto fill-current text-gray-800" />
+                                    <ApplicationLogo className="" />
                                 </Link>
                             </div>
 
@@ -55,10 +55,10 @@ export default function AuthenticatedLayout({ header, children }) {
                                 <Dropdown
                                     value={null}
                                     onChange={(val) => {
-                                        if (val === "profile") {
+                                        if (val?.value === "profile") {
                                             router.visit(route("profile.edit"));
                                         }
-                                        if (val === "logout") {
+                                        if (val?.value === "logout") {
                                             router.post(route("logout"));
                                         }
                                     }}
@@ -173,6 +173,15 @@ export default function AuthenticatedLayout({ header, children }) {
             )}
 
             <main>{children}</main>
+            <footer className="py-6 text-center text-sm text-gray-500">
+                <a
+                    href={`mailto:${feedbackEmail}`}
+                    className="text-indigo-600 hover:text-indigo-800"
+                >
+                    Send Feedback
+                </a>
+            </footer>
+
         </div>
     );
 }

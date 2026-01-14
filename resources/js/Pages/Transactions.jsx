@@ -37,7 +37,7 @@ const Transactions = () => {
         >
             <Head title="Transactions" />
 
-            <div className="py-12">
+            <div className="pt-4">
                 <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 px-6">
 
                     {/* LEFT COLUMN */}

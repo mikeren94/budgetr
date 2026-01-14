@@ -36,7 +36,7 @@ const Categories = () => {
         >
             <Head title="Categories" />
 
-            <div className="py-12">
+            <div className="pt-4">
                 <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 px-6">
 
                     {/* Left column: form */}

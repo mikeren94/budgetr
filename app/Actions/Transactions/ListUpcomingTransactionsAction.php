@@ -22,10 +22,10 @@ class ListUpcomingTransactionsAction
         }
 
         // Default: end of month
-        else {
+        else { 
             $end = now()->endOfMonth();
         }
-
+        
         return $this->getUpcomingTransactions($user, $start, $end);
     }
 

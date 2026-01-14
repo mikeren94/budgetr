@@ -30,6 +30,11 @@ class Transaction extends Model
         'paid' => 'boolean'
     ];
         
+    public function getFormattedDateAttribute()
+    {
+        return $this->date?->format('Y-m-d');
+    }
+    
     public function user() {
         return $this->belongsTo(User::class);
     }

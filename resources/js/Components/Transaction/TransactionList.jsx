@@ -31,7 +31,7 @@ const TransactionList = ({
                     {/* LEFT SIDE */}
                     <div className="flex-1">
                         <p className="font-medium">{t.description || "No description"}</p>
-                        <p className="text-sm text-gray-500">{t.date}</p>
+                        <p className="text-sm text-gray-500">{t.formatted_date}</p>
 
                         {!t.category && (
                             <p className="text-xs text-yellow-700 bg-yellow-100 px-2 py-1 rounded inline-block mt-1">

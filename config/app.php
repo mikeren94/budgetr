@@ -123,4 +123,5 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'feedback_email' => env('FEEDBACK_EMAIL', '')
 ];

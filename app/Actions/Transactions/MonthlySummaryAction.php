@@ -45,7 +45,10 @@ class MonthlySummaryAction
                 $outer->where(function ($q) use ($start, $end) {
                     $q->whereHas('category', fn($c) => $c->where('type', 'income'))
                     ->whereDate('date', '<=', $end)
-                    ->whereDate('coverage_end_date', '>=', $start);
+                    ->where(function ($q2) use ($start) {
+                        $q2->whereDate('coverage_end_date', '>=', $start)
+                            ->orWhereNull('coverage_end_date');
+                    });
                 })
                 ->orWhere(function ($q) use ($start, $end) {
                     $q->whereHas('category', fn($c) => $c->where('type', 'expense'))
