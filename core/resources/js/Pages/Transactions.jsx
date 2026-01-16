@@ -7,7 +7,7 @@ import { useState } from "react";
 import EditTransaction from "@/Components/Transaction/EditTransaction";
 const Transactions = () => {
 
-    const { transactions, loading, pagination, setPage } = useTransactions();
+    const { transactions, loading, pagination, setPage, refresh } = useTransactions();
 
     const [editingId, setEditingId] = useState(null);
 
@@ -28,6 +28,7 @@ const Transactions = () => {
     };
 
     const handleSuccess = () => {
+        refresh();
         setEditingId(null); // go back to create mode
     };
 

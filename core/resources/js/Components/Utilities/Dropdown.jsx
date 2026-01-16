@@ -51,7 +51,7 @@ const Dropdown = ({
 
             {/* Menu */}
             {open && (
-                <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg border border-gray-200">
+                <div className="absolute z-10 mt-1 w-full rounded-md bg-white shadow-lg border">
                     {options.map((opt) => (
                        <button
                             key={opt.value}

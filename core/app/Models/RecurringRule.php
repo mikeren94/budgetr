@@ -41,12 +41,6 @@ class RecurringRule extends Model
         return $this->belongsTo(Category::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | EXISTING LOGIC (unchanged)
-    |--------------------------------------------------------------------------
-    */
-
     public function calculateNextOccurrence()
     {
         $date = Carbon::parse($this->next_occurrence);
@@ -99,12 +93,6 @@ class RecurringRule extends Model
         return $transaction;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | FORECASTING LOGIC (new)
-    |--------------------------------------------------------------------------
-    */
-
     /**
      * Check if this rule fires inside the given month.
      */
@@ -145,11 +133,20 @@ class RecurringRule extends Model
      */
     public function generateVirtualTransaction(Carbon $date)
     {
+        // Determine coverage end date based on frequency
+        $coverageEnd = match ($this->frequency) {
+            'monthly' => $date->copy()->addMonth()->subDay(),
+            'weekly'  => $date->copy()->addWeek()->subDay(),
+            'yearly'  => $date->copy()->addYear()->subDay(),
+            default   => $date->copy(), // fallback
+        };
+
         return new Transaction([
             'user_id' => $this->user_id,
             'category_id' => $this->category_id,
             'amount' => $this->amount,
             'date' => $date->copy(),
+            'coverage_end_date' => $coverageEnd,
             'recurring_rule_id' => $this->id,
             'paid' => false,
         ]);
@@ -180,6 +177,37 @@ class RecurringRule extends Model
         ]);
     }
 
+    /**
+     * Return virtual occurrences that should be included in the monthly summary.
+     */
+    public function virtualOccurrencesForMonthlySummary(Carbon $start, Carbon $end)
+    {
+        $occurrence = $this->occursInMonth($start);
+
+        if (!$occurrence) {
+            return collect();
+        }
+
+        // Prevent duplicates
+        $exists = Transaction::where('recurring_rule_id', $this->id)
+            ->whereDate('date', $occurrence->toDateString())
+            ->exists();
+
+        if ($exists) {
+            return collect();
+        }
+
+        $virtual = $this->generateVirtualTransaction($occurrence);
+        $virtual->setRelation('category', $this->category);
+
+        if ($this->category->type === 'income') {
+            $include = $virtual->date->between($start, $end);
+        } else {
+            $include = $virtual->date->between($start, $end);
+        }
+
+        return $include ? collect([$virtual]) : collect();
+    }
 
     /*
     |--------------------------------------------------------------------------

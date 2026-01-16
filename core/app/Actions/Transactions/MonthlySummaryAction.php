@@ -21,13 +21,14 @@ class MonthlySummaryAction
         $virtual = RecurringRule::where('user_id', $user->id)
             ->where('active', true)
             ->get()
-            ->flatMap(fn($rule) => $rule->virtualOccurrencesForMonth($month));
+            ->flatMap(fn($rule) => $rule->virtualOccurrencesForMonthlySummary($start, $end));
 
             // Merge real + virtual
         $allTransactions = $transactions->concat($virtual);
         $income = round($allTransactions->where('category.type', 'income')->sum('amount'), 2);
         $expenses = round($allTransactions->where('category.type', 'expense')->sum('amount'), 2);
         $net = round($income - $expenses, 2);
+
         return [
             'month' => $month->format('F Y'),
             'income' => $income,
@@ -44,11 +45,7 @@ class MonthlySummaryAction
             ->where(function ($outer) use ($start, $end) {
                 $outer->where(function ($q) use ($start, $end) {
                     $q->whereHas('category', fn($c) => $c->where('type', 'income'))
-                    ->whereDate('date', '<=', $end)
-                    ->where(function ($q2) use ($start) {
-                        $q2->whereDate('coverage_end_date', '>=', $start)
-                            ->orWhereNull('coverage_end_date');
-                    });
+                    ->whereBetween('date', [$start, $end]);
                 })
                 ->orWhere(function ($q) use ($start, $end) {
                     $q->whereHas('category', fn($c) => $c->where('type', 'expense'))
