@@ -44,8 +44,15 @@ class MonthlySummaryAction
             ->where('user_id', $user->id)
             ->where(function ($outer) use ($start, $end) {
                 $outer->where(function ($q) use ($start, $end) {
+                    // $q->whereHas('category', fn($c) => $c->where('type', 'income'))
+                    // ->whereBetween('date', [$start, $end]);
                     $q->whereHas('category', fn($c) => $c->where('type', 'income'))
-                    ->whereBetween('date', [$start, $end]);
+                  ->whereDate('date', '<=', $end)
+                  ->where(function ($q2) use ($start) {
+                      $q2->whereDate('coverage_end_date', '>=', $start)
+                         ->orWhereNull('coverage_end_date');
+                  });
+
                 })
                 ->orWhere(function ($q) use ($start, $end) {
                     $q->whereHas('category', fn($c) => $c->where('type', 'expense'))

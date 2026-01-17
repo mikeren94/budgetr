@@ -197,11 +197,26 @@ class RecurringRule extends Model
             return collect();
         }
 
+        // NEW: Check if a real transaction already covers this month
+        $realCovering = Transaction::where('recurring_rule_id', $this->id)
+            ->whereHas('category', fn($c) => $c->where('type', 'income'))
+            ->whereDate('date', '<=', $end)
+            ->whereDate('coverage_end_date', '>=', $start)
+            ->exists();
+
+        if ($realCovering) {
+            // A real transaction already covers this month → skip virtual
+            return collect();
+        }
+
+        // Generate virtual
         $virtual = $this->generateVirtualTransaction($occurrence);
         $virtual->setRelation('category', $this->category);
 
+        // Apply summary logic
         if ($this->category->type === 'income') {
-            $include = $virtual->date->between($start, $end);
+            $include = $virtual->date->lte($end)
+                && ($virtual->coverage_end_date?->gte($start) ?? true);
         } else {
             $include = $virtual->date->between($start, $end);
         }
