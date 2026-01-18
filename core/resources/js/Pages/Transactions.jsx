@@ -7,7 +7,12 @@ import { useState } from "react";
 import EditTransaction from "@/Components/Transaction/EditTransaction";
 const Transactions = () => {
 
-    const { transactions, loading, pagination, setPage, refresh } = useTransactions();
+    const [search, setSearch] = useState("");
+    const [sortBy, setSortBy] = useState("date");
+    const [sortDir, setSortDir] = useState("desc");
+
+    const { transactions, loading, pagination, setPage, refresh } =
+        useTransactions({ search, sortBy, sortDir });
 
     const [editingId, setEditingId] = useState(null);
 
@@ -59,6 +64,13 @@ const Transactions = () => {
                             onDelete={handleDelete}
                             pagination={pagination}
                             setPage={setPage}
+
+                            search={search}
+                            setSearch={setSearch}
+                            sortBy={sortBy}
+                            setSortBy={setSortBy}
+                            sortDir={sortDir}
+                            setSortDir={setSortDir}
                         />
                     </div>
 

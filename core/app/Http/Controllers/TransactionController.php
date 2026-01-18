@@ -24,7 +24,12 @@ class TransactionController extends Controller
 
     public function index(ListTransactionRequest $request, ListTransactionsAction $action)
     {
-        return $action->execute($request->user(), $request->month);
+        return $action->execute($request->user(), [
+            'search'  => $request->query('search'),
+            'sortBy'  => $request->query('sortBy'),
+            'sortDir' => $request->query('sortDir'),
+            'month'   => $request->query('month'),
+        ]);
     }
 
     public function show(Transaction $transaction)
@@ -49,7 +54,7 @@ class TransactionController extends Controller
         $this->authorize('update', $transaction);
 
         $result = $action->execute($transaction, $request->validated());
-        
+
         return response()->json([
             'message' => $result['message'],
             'data' => new TransactionResource($result),

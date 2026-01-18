@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import axios from "axios";
 
-export function useTransactions() {
+export function useTransactions({ search, sortBy, sortDir }) {
     const [transactions, setTransactions] = useState([]);
     const [pagination, setPagination] = useState(null);
     const [page, setPage] = useState(1);
@@ -11,32 +11,37 @@ export function useTransactions() {
     const fetchTransactions = useCallback((pageNum = page) => {
         setLoading(true);
 
-        axios
-            .get(`/api/transactions?page=${pageNum}`)
-            .then(response => {
-                const data = response.data;
+        axios.get(`/api/transactions`, {
+            params: {
+                page: pageNum,
+                search,
+                sortBy,
+                sortDir
+            }
+        })
+        .then(response => {
+            const data = response.data;
 
-                setTransactions(data.data);
+            setTransactions(data.data);
 
-                setPagination({
-                    current_page: data.current_page,
-                    last_page: data.last_page,
-                    next_page_url: data.next_page_url,
-                    prev_page_url: data.prev_page_url,
-                });
-
-                setLoading(false);
-            })
-            .catch(err => {
-                setError(err);
-                setLoading(false);
+            setPagination({
+                current_page: data.current_page,
+                last_page: data.last_page,
+                next_page_url: data.next_page_url,
+                prev_page_url: data.prev_page_url,
             });
-    }, [page]);
 
-    // Fetch whenever page changes
+            setLoading(false);
+        })
+        .catch(err => {
+            setError(err);
+            setLoading(false);
+        });
+    }, [page, search, sortBy, sortDir]);
+
     useEffect(() => {
         fetchTransactions(page);
-    }, [page, fetchTransactions]);
+    }, [page, search, sortBy, sortDir, fetchTransactions]);
 
     return {
         transactions,
