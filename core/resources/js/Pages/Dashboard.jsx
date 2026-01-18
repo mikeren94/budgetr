@@ -15,6 +15,7 @@ import UpcomingTransactions from '@/Components/Transaction/UpcomingTransactions'
 import Calendar from '@/Components/Calendar';
 import useUpcomingTransactions from '@/hooks/useUpcomingTransactions';
 import axios from 'axios';
+import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
 
 export default function Dashboard() {
 
@@ -23,7 +24,8 @@ export default function Dashboard() {
 
     // Load monthly summary for the selected month
     const { data, loading, error } = useMonthlySummary(selectedMonth);
-
+    const { transactions: monthlyTransactions, loading: monthlyLoading } =
+        useMonthlyTransactions(selectedMonth);
     // Load unpaid transactions
     const {
         transactions: unpaidTransactions,
@@ -62,10 +64,10 @@ export default function Dashboard() {
     const calendarByDate = useMemo(() => {
         const map = {};
 
-        transactions.forEach(t => {
+        monthlyTransactions.forEach(t => {
             if (!t.category) return;
 
-            const date = t.date; // "YYYY-MM-DD"
+            const date = t.formatted_date; // "YYYY-MM-DD"
             if (!map[date]) {
                 map[date] = { bills: 0, income: 0 };
             }
@@ -80,7 +82,7 @@ export default function Dashboard() {
         });
 
         return map;
-    }, [transactions]);
+    }, [monthlyTransactions]);
 
     // -----------------------------
     // UPCOMING TRANSACTIONS SECTION

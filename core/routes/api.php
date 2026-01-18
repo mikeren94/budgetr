@@ -12,6 +12,7 @@ Route::middleware(['web','auth'])->group(function() {
     Route::post('/categories', [CategoryController::class, 'store']);
 
     Route::get('/transactions', [TransactionController::class, 'index']);
+    Route::get('/transactions/monthly', [TransactionController::class, 'monthlyTransactions']);
     Route::get('/transactions/unpaid', [TransactionController::class, 'unpaid']);
     Route::get('/transactions/upcoming', [TransactionController::class, 'upcoming']);
     Route::get('/transactions/{transaction}', [TransactionController::class, 'show']);

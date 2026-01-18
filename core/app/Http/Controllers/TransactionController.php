@@ -17,6 +17,7 @@ use App\Actions\Transactions\ListUnpaidTransactionsAction;
 use App\Actions\Transactions\ListUpcomingTransactionsAction;
 use App\Actions\Transactions\MonthlySummaryAction;
 use App\Actions\Transactions\MarkTransactionPaidAction;
+use App\Actions\Transactions\ListMonthlyTransactionsAction;
 
 class TransactionController extends Controller
 {
@@ -102,5 +103,18 @@ class TransactionController extends Controller
         );
 
         return TransactionResource::collection($transactions);
+    }
+
+    public function monthlyTransactions(Request $request, ListMonthlyTransactionsAction $action)
+    {
+        $request->validate([
+            'month' => 'required|date',
+        ]);
+
+        $transactions = $action->execute($request->user(), $request->month);
+
+        return response()->json([
+            'data' => $transactions,
+        ]);
     }
 }

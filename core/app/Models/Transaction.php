@@ -30,6 +30,8 @@ class Transaction extends Model
         'paid' => 'boolean'
     ];
         
+    protected $appends = ['formatted_date'];
+    
     public function getFormattedDateAttribute()
     {
         return $this->date?->format('Y-m-d');

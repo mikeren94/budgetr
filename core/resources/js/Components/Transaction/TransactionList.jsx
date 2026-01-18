@@ -67,6 +67,29 @@ const TransactionList = ({
                     ))}
                 </tbody>
             </table>
+            {pagination && (
+                <div className="flex justify-between items-center mt-6 px-2">
+                    <Button
+                        variant="secondary"
+                        disabled={!pagination.prev_page_url}
+                        onClick={() => setPage(pagination.current_page - 1)}
+                    >
+                        Previous
+                    </Button>
+
+                    <span className="text-gray-600 text-sm">
+                        Page {pagination.current_page} of {pagination.last_page}
+                    </span>
+
+                    <Button
+                        variant="secondary"
+                        disabled={!pagination.next_page_url}
+                        onClick={() => setPage(pagination.current_page + 1)}
+                    >
+                        Next
+                    </Button>
+                </div>
+            )}
         </div>
     );
 };
