@@ -37,7 +37,7 @@ const Categories = () => {
             <Head title="Categories" />
 
             <div className="pt-4">
-                <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
 
                     {/* Left column: form */}
                     <div className="col-span-1 lg:col-span-2 bg-white rounded-lg shadow p-4">

@@ -123,7 +123,7 @@ export default function Dashboard() {
             <Head title="Dashboard" />
 
             <div className="pt-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6 px-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-6">
 
                     {unpaidTransactions.length > 0 && (
                         <div className="col-span-1 sm:col-span-2 lg:col-span-6 bg-white rounded-lg shadow p-4">

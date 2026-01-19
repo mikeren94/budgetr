@@ -172,7 +172,9 @@ export default function AuthenticatedLayout({ header, children }) {
                 </header>
             )}
 
-            <main>{children}</main>
+            <main className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+                {children}
+            </main>
             <footer className="py-6 text-center text-sm text-gray-500">
                 <a
                     href={`mailto:${feedbackEmail}`}

@@ -44,7 +44,7 @@ const Transactions = () => {
             <Head title="Transactions" />
 
             <div className="pt-4">
-                <div className="grid grid-cols-1 lg:grid-cols-6 gap-6 px-6">
+                <div className="grid grid-cols-1 lg:grid-cols-6 gap-6">
 
                     {/* LEFT COLUMN */}
                     <div className="col-span-1 lg:col-span-2 bg-white rounded-lg shadow p-4">
