@@ -54,11 +54,19 @@ class MonthlyTransactionsTest extends TestCase
     /** @test */
     public function test_it_includes_income_that_covers_the_month()
     {
-        Transaction::factory()->create([
+        $rule = RecurringRule::factory()->create([
+            'user_id' => $this->user->id,
+            'category_id' => $this->incomeCategory->id,
+            'frequency' => 'monthly',
+            'interval' => 1,
+        ]);
+
+        $t = Transaction::factory()->create([
             'user_id' => $this->user->id,
             'category_id' => $this->incomeCategory->id,
             'date' => '2026-01-31',
-            'coverage_end_date' => '2026-03-03', // overlaps Feb
+            'recurring_rule_id' => $rule->id,
+            'coverage_end_date' => '2026-02-28',
         ]);
 
         $response = $this->actingAs($this->user)
@@ -91,23 +99,19 @@ class MonthlyTransactionsTest extends TestCase
     /** @test */
     public function test_it_does_not_duplicate_virtual_transactions_if_real_coverage_exists()
     {
-        // Real salary covering Feb
+        $rule = RecurringRule::factory()->create([
+            'user_id' => $this->user->id,
+            'category_id' => $this->incomeCategory->id,
+            'frequency' => 'monthly',
+            'interval' => 1,
+            'active' => true,
+        ]);
+
         Transaction::factory()->create([
             'user_id' => $this->user->id,
             'category_id' => $this->incomeCategory->id,
             'date' => '2026-01-31',
-            'coverage_end_date' => '2026-03-03',
-        ]);
-
-        // Recurring rule that WOULD generate Feb salary
-        RecurringRule::factory()->create([
-            'user_id' => $this->user->id,
-            'category_id' => $this->incomeCategory->id,
-            'amount' => 1000,
-            'start_date' => '2026-01-31',
-            'frequency' => 'monthly',
-            'interval' => 1,
-            'active' => true,
+            'recurring_rule_id' => $rule->id,
         ]);
 
         $response = $this->actingAs($this->user)

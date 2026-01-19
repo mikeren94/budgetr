@@ -14,7 +14,7 @@ use App\Models\Category;
 class ReccuringRuleNextOccuranceTest extends TestCase
 {
     use RefreshDatabase;
-   
+
     public function test_monthly_rule_calculates_next_occurrence()
     {
         Carbon::setTestNow('2024-01-15');
@@ -55,7 +55,7 @@ class ReccuringRuleNextOccuranceTest extends TestCase
         $this->assertEquals('2025-04-01', $next->toDateString());
     }
 
-    
+
     public function test_custom_month_rule_skips_unselected_months()
     {
         Carbon::setTestNow('2024-01-15');
@@ -131,10 +131,9 @@ class ReccuringRuleNextOccuranceTest extends TestCase
             'interval' => 1,
             'next_occurrence' => '2024-01-15',
         ]);
-        
+
         $rule->generateTransaction();
 
-        $this->assertEquals('2024-02-15', $rule->next_occurrence);
+        $this->assertEquals('2024-02-15', $rule->next_occurrence->toDateString());
     }
-
 }

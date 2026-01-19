@@ -23,7 +23,10 @@ class RecurringRule extends Model
     ];
 
     protected $casts = [
-        'months' => 'array',
+        'start_date' => 'date',
+        'next_occurrence' => 'date',
+        'custom_months' => 'array',
+        'months' => 'array'
     ];
 
     public function user()
@@ -98,34 +101,80 @@ class RecurringRule extends Model
      */
     public function occursInMonth(Carbon $month): ?Carbon
     {
-        if (!$this->active) {
+        $start = $this->start_date->copy()->startOfDay();
+
+        // If the rule starts after the month, it cannot occur
+        if ($start->greaterThan($month->copy()->endOfMonth())) {
             return null;
         }
 
-        $start = Carbon::parse($this->start_date);
-        $targetStart = $month->copy()->startOfMonth();
-        $targetEnd = $month->copy()->endOfMonth();
+        // DAILY
+        if ($this->frequency === 'daily') {
+            return $month->copy()->startOfMonth();
+        }
 
-        // If the rule starts after the month, skip
-        if ($start->isAfter($targetEnd)) {
+        // WEEKLY
+        if ($this->frequency === 'weekly') {
+            $occurrence = $start->copy();
+
+            while ($occurrence->lessThanOrEqualTo($month->copy()->endOfMonth())) {
+                if ($occurrence->isSameMonth($month)) {
+                    return $occurrence;
+                }
+                $occurrence->addWeeks($this->interval);
+            }
+
             return null;
         }
 
-        $occurrence = $start->copy();
+        // MONTHLY
+        if ($this->frequency === 'monthly') {
+            $occurrence = $start->copy();
 
-        // Advance until we reach the target month
-        while ($occurrence->isBefore($targetStart)) {
-            $occurrence = match ($this->frequency) {
-                'monthly' => $occurrence->copy()->addMonths($this->interval),
-                'yearly'  => $occurrence->copy()->addYears($this->interval),
-                'custom'  => $this->calculateNextCustomMonth($occurrence),
-                default   => $occurrence,
-            };
+            while ($occurrence->lessThanOrEqualTo($month->copy()->endOfMonth())) {
+                if ($occurrence->isSameMonth($month)) {
+                    return $occurrence;
+                }
+
+                // CRITICAL FIX: no overflow
+                $occurrence = $occurrence->addMonthsNoOverflow($this->interval);
+            }
+
+            return null;
         }
 
-        return $occurrence->between($targetStart, $targetEnd)
-            ? $occurrence
-            : null;
+        // YEARLY
+        if ($this->frequency === 'yearly') {
+            $occurrence = $start->copy();
+
+            while ($occurrence->lessThanOrEqualTo($month->copy()->endOfMonth())) {
+                if ($occurrence->isSameMonth($month)) {
+                    return $occurrence;
+                }
+                $occurrence->addYears($this->interval);
+            }
+
+            return null;
+        }
+
+        // CUSTOM MONTHS (e.g., Jan, Apr, Jul, Oct)
+        if ($this->frequency === 'custom') {
+            $day = $start->day;
+            $year = $month->year;
+
+            if (!in_array($month->month, $this->custom_months)) {
+                return null;
+            }
+
+            // Use no-overflow to handle 29/30/31
+            return Carbon::create($year, $month->month, 1)
+                ->startOfMonth()
+                ->addDays($day - 1)
+                ->startOfDay()
+                ->addMonthsNoOverflow(0);
+        }
+
+        return null;
     }
 
     /**

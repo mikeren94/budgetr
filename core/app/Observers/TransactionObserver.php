@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Observers;
 
 use App\Models\Transaction;
@@ -19,7 +20,6 @@ class TransactionObserver
 
     protected function applyCoverageEndDate(Transaction $transaction)
     {
-        // Manually load relationships because the model isn't saved yet
         if ($transaction->category_id) {
             $transaction->setRelation('category', Category::find($transaction->category_id));
         }
@@ -28,7 +28,6 @@ class TransactionObserver
             $transaction->setRelation('recurringRule', RecurringRule::find($transaction->recurring_rule_id));
         }
 
-        // Only income transactions with a recurring rule get a coverage end date
         if (!$transaction->isIncome() || !$transaction->recurringRule) {
             $transaction->coverage_end_date = null;
             return;
@@ -36,12 +35,19 @@ class TransactionObserver
 
         $rule = $transaction->recurringRule;
 
+        if ($rule->frequency === 'monthly') {
+            $transaction->coverage_end_date = $transaction->date
+                ->copy()
+                ->addMonthsNoOverflow($rule->interval);
+            return;
+        }
+
+        // Fallback for other frequencies (if you even need coverage for them)
         $unit = match ($rule->frequency) {
             'daily' => 'day',
             'weekly' => 'week',
-            'monthly' => 'month',
             'yearly' => 'year',
-            default => 'month', // safe fallback
+            default => 'month',
         };
 
         $transaction->coverage_end_date = $transaction->date->copy()->add(
