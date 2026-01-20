@@ -62,7 +62,7 @@ class RecurringRule extends Model
 
         $next = $date->copy()->addMonth();
 
-        while (!in_array($next->month, $allowedMonths)) {
+        while (!in_array($next->month, $allowedMonths ?? [])) {
             $next->addMonth();
         }
 
@@ -162,7 +162,7 @@ class RecurringRule extends Model
             $day = $start->day;
             $year = $month->year;
 
-            if (!in_array($month->month, $this->custom_months)) {
+            if (!in_array($month->month, $this->custom_months ?? [])) {
                 return null;
             }
 

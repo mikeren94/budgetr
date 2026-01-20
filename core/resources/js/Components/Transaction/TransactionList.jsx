@@ -14,9 +14,9 @@ const TransactionList = ({
     sortDir,
     setSortDir
 }) => {
-    if (loading) {
-        return <p className="text-gray-500">Loading transactions…</p>;
-    }
+    // if (loading) {
+    //     return <p className="text-gray-500">Loading transactions…</p>;
+    // }
 
     if (!transactions || transactions.length === 0) {
         return <p className="text-gray-500">No transactions found.</p>;

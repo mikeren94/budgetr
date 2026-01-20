@@ -22,18 +22,22 @@ export default function RecurringRuleFields({ value, onChange, errors = {} }) {
     const update = (patch) => onChange({ ...value, ...patch });
 
     const frequencyOptions = [
+        // { label: "Daily", value: "daily" },
+        { label: "Weekly", value: "weekly" },
         { label: "Monthly", value: "monthly" },
         { label: "Yearly", value: "yearly" },
         { label: "Custom Months", value: "custom" },
     ];
 
-    const intervalLabel =
-        value.frequency === "monthly"
-            ? "Repeat every X months"
-            : value.frequency === "yearly"
-            ? "Repeat every X years"
-            : "Repeat every X intervals";
+    const intervalLabelMap = {
+        // daily: "Repeat every X days",
+        weekly: "Repeat every X weeks",
+        monthly: "Repeat every X months",
+        yearly: "Repeat every X years",
+        custom: "Repeat every X intervals",
+    };
 
+    const intervalLabel = intervalLabelMap[value.frequency] ?? "Repeat every X intervals";
     return (
         <div className="border rounded p-4 space-y-4 bg-gray-50">
             <InputLabel value="Recurring Rule" />
@@ -100,8 +104,8 @@ export default function RecurringRuleFields({ value, onChange, errors = {} }) {
                                                     .checked
                                                     ? [...value.months, m.num]
                                                     : value.months.filter(
-                                                          (x) => x !== m.num
-                                                      );
+                                                        (x) => x !== m.num
+                                                    );
                                                 update({ months: newMonths });
                                             }}
                                         />

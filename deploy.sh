@@ -1,5 +1,8 @@
 #!/bin/bash
-
+# cd core && composer install --no-dev --optimize-autoloader
+# npm install
+# npm run build
+# cd ../
 echo "running deployment script"
 rm -rf deploy_temp
 mkdir deploy_temp
@@ -29,7 +32,7 @@ cp core/public/build/manifest.json deploy_temp/budgeter/public/build/manifest.js
 # Copy assets into Hostinger's public_html/build
 mkdir -p deploy_temp/budgeter/build
 cp -R public_html/ deploy_temp/public_html
-cp -R core/budgeter/public/build/assets deploy_temp/public_html/build/assets
+cp -R core/public/build/assets deploy_temp/public_html/build/assets
 
 echo "creating zip folder"
 # Create zip
