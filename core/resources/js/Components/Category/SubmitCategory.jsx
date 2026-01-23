@@ -1,18 +1,20 @@
-import { useState, useEffect } from "react";
-import axios from "axios";
-import InputLabel from "../Utilities/InputLabel";
-import Input from "../Utilities/Input";
-import InputError from "../Utilities/InputError";
-import Dropdown from "../Utilities/Dropdown";
-import Button from "../Utilities/Button";
-import transactionTypes from "../../../data/transaction_types.json";
+import { useState, useEffect } from 'react';
+import axios from 'axios';
+
+import InputLabel from '../Utilities/InputLabel';
+import Input from '../Utilities/Input';
+import InputError from '../Utilities/InputError';
+import Dropdown from '../Utilities/Dropdown';
+import Button from '../Utilities/Button';
+
+import transactionTypes from '../../../data/transaction_types.json';
 
 const SubmitCategory = ({ category = null, onSuccess }) => {
     const isEditing = Boolean(category);
 
-    const [name, setName] = useState("");
-    const [type, setType] = useState("expense");
-    const [color, setColor] = useState("#4f46e5");
+    const [name, setName] = useState('');
+    const [type, setType] = useState('expense');
+    const [color, setColor] = useState('#4f46e5');
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
@@ -22,36 +24,25 @@ const SubmitCategory = ({ category = null, onSuccess }) => {
             setType(category.type);
             setColor(category.color);
         }
-    }, [category]);
+    }, [category, isEditing]);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
         setErrors({});
 
-        const payload = {
-            name,
-            type,
-            color,
-        };
-
-        const url = isEditing
-            ? `/api/categories/${category.id}`
-            : `/api/categories`;
-
-        const method = isEditing ? "put" : "post";
+        const payload = { name, type, color };
+        const url = isEditing ? `/api/categories/${category.id}` : '/api/categories';
+        const method = isEditing ? 'put' : 'post';
 
         try {
-            await axios[method](url, payload, {
-                withCredentials: true,
-            });
-
+            await axios[method](url, payload, { withCredentials: true });
             if (onSuccess) onSuccess();
         } catch (error) {
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors);
             } else {
-                console.error("Unexpected error:", error);
+                console.error('Unexpected error:', error);
             }
         } finally {
             setLoading(false);
@@ -61,10 +52,9 @@ const SubmitCategory = ({ category = null, onSuccess }) => {
     return (
         <form onSubmit={handleSubmit} className="rounded-lg space-y-6">
             <h2 className="text-xl font-semibold text-gray-800">
-                {isEditing ? "Edit Category" : "Create Category"}
+                {isEditing ? 'Edit Category' : 'Create Category'}
             </h2>
 
-            {/* Name */}
             <div>
                 <InputLabel value="Name" />
                 <Input
@@ -75,12 +65,11 @@ const SubmitCategory = ({ category = null, onSuccess }) => {
                 {errors.name && <InputError message={errors.name} />}
             </div>
 
-            {/* Type */}
             <div>
                 <Dropdown
                     label="Type"
                     value={type}
-                    onChange={(option) => setType(option.value)} 
+                    onChange={(option) => setType(option.value)}
                     options={transactionTypes.map((t) => ({
                         label: t.name,
                         value: t.name.toLowerCase(),
@@ -89,7 +78,6 @@ const SubmitCategory = ({ category = null, onSuccess }) => {
                 {errors.type && <InputError message={errors.type} />}
             </div>
 
-            {/* Color */}
             <div>
                 <InputLabel value="Colour" />
 
@@ -112,7 +100,6 @@ const SubmitCategory = ({ category = null, onSuccess }) => {
                 {errors.color && <InputError message={errors.color} />}
             </div>
 
-            {/* Submit */}
             <Button
                 type="submit"
                 disabled={loading}
@@ -121,11 +108,11 @@ const SubmitCategory = ({ category = null, onSuccess }) => {
             >
                 {loading
                     ? isEditing
-                        ? "Saving..."
-                        : "Creating..."
+                        ? 'Saving...'
+                        : 'Creating...'
                     : isEditing
-                    ? "Save Changes"
-                    : "Create Category"}
+                    ? 'Save Changes'
+                    : 'Create Category'}
             </Button>
         </form>
     );

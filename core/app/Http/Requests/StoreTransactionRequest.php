@@ -39,7 +39,6 @@ class StoreTransactionRequest extends FormRequest
 
     public function prepareForValidation()
     {
-        // Ensure boolean is parsed correctly
         $this->merge([
             'is_recurring' => filter_var($this->is_recurring, FILTER_VALIDATE_BOOLEAN),
         ]);

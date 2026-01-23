@@ -35,7 +35,6 @@ class MonthlyTransactionsTest extends TestCase
         ]);
     }
 
-    /** @test */
     public function test_it_returns_real_transactions_for_the_month()
     {
         Transaction::factory()->create([
@@ -51,7 +50,6 @@ class MonthlyTransactionsTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    /** @test */
     public function test_it_includes_income_that_covers_the_month()
     {
         $rule = RecurringRule::factory()->create([
@@ -76,7 +74,6 @@ class MonthlyTransactionsTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    /** @test */
     public function test_it_generates_virtual_transactions_when_no_real_coverage_exists()
     {
         RecurringRule::factory()->create([
@@ -96,7 +93,6 @@ class MonthlyTransactionsTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    /** @test */
     public function test_it_does_not_duplicate_virtual_transactions_if_real_coverage_exists()
     {
         $rule = RecurringRule::factory()->create([
@@ -122,7 +118,6 @@ class MonthlyTransactionsTest extends TestCase
             ->assertJsonCount(1, 'data');
     }
 
-    /** @test */
     public function test_it_sorts_transactions_by_date_desc()
     {
         // IMPORTANT: both must have categories or they will be filtered out

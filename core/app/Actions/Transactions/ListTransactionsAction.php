@@ -18,12 +18,10 @@ class ListTransactionsAction
         $query = Transaction::with(['category', 'recurringRule'])
             ->where('user_id', $user->id);
 
-        // Optional month filter
         if ($month) {
             $query->forMonth($month);
         }
 
-        // Search filter
         if ($search) {
             $query->where(function ($q) use ($search) {
                 $q->where('description', 'like', "%{$search}%")
@@ -33,7 +31,6 @@ class ListTransactionsAction
             });
         }
 
-        // Sorting (whitelist allowed columns)
         $allowedSorts = ['date', 'amount', 'description'];
         if (!in_array($sortBy, $allowedSorts)) {
             $sortBy = 'date';

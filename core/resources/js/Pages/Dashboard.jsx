@@ -1,39 +1,37 @@
-import CreateCategory from '@/Components/Category/CreateCategory';
 import MonthlySummary from '@/Components/Summary/MonthlySummary';
-import CreateTransaction from '@/Components/Transaction/CreateTransaction';
-import TransactionList from '@/Components/Transaction/TransactionList';
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
-import { Head } from '@inertiajs/react';
-import { useState, useEffect, useMemo } from 'react';
-import { useMonthlySummary } from '@/hooks/useMonthlySummary';
 import ExpenseBreakdown from '@/Components/Category/ExpenseBreakdown';
 import IncomeBreakdown from '@/Components/Category/IncomeBreakdown';
-import { useCategoryBreakdown } from '@/Hooks/useCategoryBreakdown';
-import { useUnpaidTransactions } from '@/Hooks/useUnpaidTransactions';
 import UnpaidTransactions from '@/Components/Transaction/UnpaidTransactions';
 import UpcomingTransactions from '@/Components/Transaction/UpcomingTransactions';
 import Calendar from '@/Components/Calendar';
-import useUpcomingTransactions from '@/hooks/useUpcomingTransactions';
+
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
+import { Head } from '@inertiajs/react';
+
+import { useState, useEffect, useMemo } from 'react';
 import axios from 'axios';
-import { useMonthlyTransactions } from "@/hooks/useMonthlyTransactions";
+
+import { useMonthlySummary } from '@/hooks/useMonthlySummary';
+import { useMonthlyTransactions } from '@/hooks/useMonthlyTransactions';
+import { useCategoryBreakdown } from '@/hooks/useCategoryBreakdown';
+import { useUnpaidTransactions } from '@/hooks/useUnpaidTransactions';
+import useUpcomingTransactions from '@/hooks/useUpcomingTransactions';
 
 export default function Dashboard() {
-
     const currentMonth = new Date().toISOString().slice(0, 7);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
 
-    // Load monthly summary for the selected month
+    // Monthly summary and transactions
     const { data, loading, error } = useMonthlySummary(selectedMonth);
-    const { transactions: monthlyTransactions, loading: monthlyLoading } =
-        useMonthlyTransactions(selectedMonth);
-    // Load unpaid transactions
+    const { transactions: monthlyTransactions } = useMonthlyTransactions(selectedMonth);
+
+    // Unpaid transactions
     const {
         transactions: unpaidTransactions,
         loading: unpaidTransactionsLoading,
         refresh: refreshUnpaid
     } = useUnpaidTransactions();
 
-    // Refresh unpaid transactions whenever the month changes
     useEffect(() => {
         refreshUnpaid();
     }, [selectedMonth]);
@@ -42,17 +40,16 @@ export default function Dashboard() {
     const income = data?.income ?? 0;
     const expenses = data?.expenses ?? 0;
     const net = data?.net ?? 0;
-    const month = data?.month ?? "";
+    const month = data?.month ?? '';
 
     const { income: incomeCategories, expenses: expenseCategories } =
         useCategoryBreakdown(transactions);
 
     const markTransactionPaid = async (id) => {
-        const confirmed = window.confirm("Mark this transaction as paid?");
+        const confirmed = window.confirm('Mark this transaction as paid?');
         if (!confirmed) return;
 
         await axios.put(`/api/transactions/${id}/mark-paid`);
-
         refreshUnpaid();
         refreshUpcoming();
     };
@@ -61,22 +58,23 @@ export default function Dashboard() {
         setSelectedMonth(e.target.value);
     };
 
+    // Build calendar summary map
     const calendarByDate = useMemo(() => {
         const map = {};
 
-        monthlyTransactions.forEach(t => {
+        monthlyTransactions.forEach((t) => {
             if (!t.category) return;
 
-            const date = t.formatted_date; // "YYYY-MM-DD"
+            const date = t.formatted_date;
             if (!map[date]) {
                 map[date] = { bills: 0, income: 0 };
             }
 
-            if (t.category.type === "expense") {
+            if (t.category.type === 'expense') {
                 map[date].bills += 1;
             }
 
-            if (t.category.type === "income") {
+            if (t.category.type === 'income') {
                 map[date].income += 1;
             }
         });
@@ -84,15 +82,11 @@ export default function Dashboard() {
         return map;
     }, [monthlyTransactions]);
 
-    // -----------------------------
-    // UPCOMING TRANSACTIONS SECTION
-    // -----------------------------
-
+    // Upcoming transactions
     const [range, setRange] = useState(null);
 
-    // Memoize params to prevent infinite loops
     const upcomingParams = useMemo(() => {
-        if (range?.value === "month") return {};
+        if (range?.value === 'month') return {};
         if (range?.value) return { range: range.value };
         return {};
     }, [range]);
@@ -173,7 +167,6 @@ export default function Dashboard() {
                     </div>
                 </div>
             </div>
-
         </AuthenticatedLayout>
     );
 }

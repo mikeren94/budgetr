@@ -47,33 +47,4 @@ class TransactionsRecurringRulesTest extends TestCase
         $this->assertNull($transaction->recurring_rule_id);
         $this->assertNull($transaction->recurringRule);
     }
-
-    // TODO: Create delete recurring rules endpointS
-    // public function test_deleting_a_recurring_rule_deletes_its_transactions()
-    // {
-    //     $user = User::factory()->create();
-
-    //     $rule = RecurringRule::factory()->for($user)->create();
-
-    //     $transactions = Transaction::factory()
-    //         ->count(3)
-    //         ->for($user)
-    //         ->for($rule)
-    //         ->create();
-
-    //     $this->actingAs($user)
-    //         ->deleteJson("/api/recurring-rules/{$rule->id}")
-    //         ->assertStatus(204);
-
-    //     foreach ($transactions as $transaction) {
-    //         $this->assertDatabaseMissing('transactions', [
-    //             'id' => $transaction->id,
-    //         ]);
-    //     }
-
-    //     $this->assertDatabaseMissing('recurring_rules', [
-    //         'id' => $rule->id,
-    //     ]);
-    // }
-
 }

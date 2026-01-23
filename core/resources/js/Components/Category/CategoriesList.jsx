@@ -14,7 +14,6 @@ const CategoriesList = ({ categories, onEdit, onDelete }) => {
                             gap-3
                         "
                     >
-                        {/* LEFT SIDE */}
                         <div className="flex items-center gap-3 flex-wrap">
                             <span
                                 className="h-4 w-4 rounded"
@@ -30,7 +29,6 @@ const CategoriesList = ({ categories, onEdit, onDelete }) => {
                             </span>
                         </div>
 
-                        {/* RIGHT SIDE */}
                         <div className="space-y-3 space-x-2">
                             <button
                                 onClick={() => onEdit(cat)}

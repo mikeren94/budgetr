@@ -23,10 +23,10 @@ class RecurringRule extends Model
     ];
 
     protected $casts = [
-        'start_date' => 'date',
-        'next_occurrence' => 'date',
-        'custom_months' => 'array',
-        'months' => 'array'
+        'start_date'       => 'date',
+        'next_occurrence'  => 'date',
+        'custom_months'    => 'array',
+        'months'           => 'array',
     ];
 
     public function user()
@@ -44,12 +44,9 @@ class RecurringRule extends Model
         return $this->belongsTo(Category::class);
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Next Occurrence Calculation
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Calculate the next occurrence date based on frequency and interval.
+     */
     public function calculateNextOccurrence()
     {
         $date = Carbon::parse($this->next_occurrence);
@@ -76,12 +73,9 @@ class RecurringRule extends Model
         return $next;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Transaction Generation
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Generate a real transaction if the rule is due.
+     */
     public function generateTransaction()
     {
         if (!$this->active) {
@@ -95,10 +89,10 @@ class RecurringRule extends Model
         }
 
         $transaction = new Transaction([
-            'user_id' => $this->user_id,
-            'category_id' => $this->category_id,
-            'amount' => $this->amount,
-            'date' => $this->next_occurrence,
+            'user_id'           => $this->user_id,
+            'category_id'       => $this->category_id,
+            'amount'            => $this->amount,
+            'date'              => $this->next_occurrence,
             'recurring_rule_id' => $this->id,
         ]);
 
@@ -109,12 +103,9 @@ class RecurringRule extends Model
         return $transaction;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Occurrence Logic (Used for Forecasting)
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Determine if the rule produces an occurrence within the given month.
+     */
     public function occursInMonth(Carbon $month): ?Carbon
     {
         $start = $this->start_date->copy()->startOfDay();
@@ -123,29 +114,23 @@ class RecurringRule extends Model
             return null;
         }
 
-        // DAILY
         if ($this->frequency === 'daily') {
             return $month->copy()->startOfMonth();
         }
 
-        // WEEKLY — optimized (no loops)
         if ($this->frequency === 'weekly') {
             $startOfMonth = $month->copy()->startOfMonth();
-            $endOfMonth = $month->copy()->endOfMonth();
+            $endOfMonth   = $month->copy()->endOfMonth();
 
             if ($start->greaterThan($endOfMonth)) {
                 return null;
             }
 
-            // Days between start and month start
-            $daysBetween = $start->diffInDays($startOfMonth, false);
-
-            // If start is already inside the month
             if ($start->isSameMonth($month)) {
                 return $start;
             }
 
-            // Calculate how many intervals to jump
+            $daysBetween = $start->diffInDays($startOfMonth, false);
             $weeksBetween = floor($daysBetween / 7);
             $steps = max(0, ceil($weeksBetween / $this->interval));
 
@@ -154,7 +139,6 @@ class RecurringRule extends Model
             return $occurrence->isSameMonth($month) ? $occurrence : null;
         }
 
-        // MONTHLY
         if ($this->frequency === 'monthly') {
             $occurrence = $start->copy();
 
@@ -169,7 +153,6 @@ class RecurringRule extends Model
             return null;
         }
 
-        // YEARLY
         if ($this->frequency === 'yearly') {
             $occurrence = $start->copy();
 
@@ -177,37 +160,33 @@ class RecurringRule extends Model
                 if ($occurrence->isSameMonth($month)) {
                     return $occurrence;
                 }
+
                 $occurrence->addYears($this->interval);
             }
 
             return null;
         }
 
-        // CUSTOM MONTHS
         if ($this->frequency === 'custom') {
             if (!in_array($month->month, $this->custom_months ?? [])) {
                 return null;
             }
 
-            $day = $start->day;
+            $day  = $start->day;
             $year = $month->year;
 
             return Carbon::create($year, $month->month, 1)
                 ->startOfMonth()
                 ->addDays($day - 1)
-                ->startOfDay()
-                ->addMonthsNoOverflow(0);
+                ->startOfDay();
         }
 
         return null;
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Virtual Transactions (Forecasting)
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Create a virtual (forecasted) transaction.
+     */
     public function generateVirtualTransaction(Carbon $date)
     {
         $coverageEnd = match ($this->frequency) {
@@ -219,13 +198,13 @@ class RecurringRule extends Model
         };
 
         return new Transaction([
-            'user_id' => $this->user_id,
-            'category_id' => $this->category_id,
-            'amount' => $this->amount,
-            'date' => $date->copy(),
-            'coverage_end_date' => $coverageEnd,
-            'recurring_rule_id' => $this->id,
-            'paid' => false,
+            'user_id'            => $this->user_id,
+            'category_id'        => $this->category_id,
+            'amount'             => $this->amount,
+            'date'               => $date->copy(),
+            'coverage_end_date'  => $coverageEnd,
+            'recurring_rule_id'  => $this->id,
+            'paid'               => false,
         ]);
     }
 
@@ -265,7 +244,7 @@ class RecurringRule extends Model
         }
 
         $realCovering = Transaction::where('recurring_rule_id', $this->id)
-            ->whereHas('category', fn($c) => $c->where('type', 'income'))
+            ->whereHas('category', fn ($c) => $c->where('type', 'income'))
             ->whereDate('date', '<=', $end)
             ->whereDate('coverage_end_date', '>=', $start)
             ->exists();
@@ -284,12 +263,9 @@ class RecurringRule extends Model
         return $include ? collect([$virtual]) : collect();
     }
 
-    /*
-    |--------------------------------------------------------------------------
-    | Helpers
-    |--------------------------------------------------------------------------
-    */
-
+    /**
+     * Return the Carbon unit name for the rule's frequency.
+     */
     public function getCarbonUnitAttribute()
     {
         return match ($this->frequency) {
@@ -301,6 +277,9 @@ class RecurringRule extends Model
         };
     }
 
+    /**
+     * Initialize the next occurrence based on the start date.
+     */
     public function initializeNextOccurrence()
     {
         $next = Carbon::parse($this->start_date);

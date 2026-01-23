@@ -13,11 +13,6 @@ class TransactionObserver
         $this->applyCoverageEndDate($transaction);
     }
 
-    // public function updated(Transaction $transaction)
-    // {
-    //     $this->applyCoverageEndDate($transaction);
-    // }
-
     protected function applyCoverageEndDate(Transaction $transaction)
     {
         if ($transaction->category_id) {
@@ -42,7 +37,6 @@ class TransactionObserver
             return;
         }
 
-        // Fallback for other frequencies (if you even need coverage for them)
         $unit = match ($rule->frequency) {
             'daily' => 'day',
             'weekly' => 'week',
